@@ -1,0 +1,5 @@
+{
+  "log_file": "sics.log",
+  "log_level": "info",
+  "auth_filter_impl": "security\\token_auth_filter"
+}
