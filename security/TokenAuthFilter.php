@@ -3,14 +3,14 @@
 namespace security;
 
 use Exception;
-use framework\auth_filter;
+use framework\AuthFilter;
 use framework\response\response;
 use ReflectionClass;
 use ReflectionException;
 
 require_once 'security/RequireAuthority.php';
 
-class token_auth_filter implements auth_filter {
+class TokenAuthFilter implements AuthFilter {
 
     public function do_filter(?string $token, $class_name, string $func_name): bool {
         $require_auth = $this->get_require_authorities($class_name, $func_name);

@@ -2,10 +2,10 @@
 
 namespace framework\response;
 
-class response_data_model extends response_model {
+class ResponseObjectModel extends ResponseModel {
     public object $data;
 
-    public function __construct($code, $data) {
+    public function __construct(int $code, object $data) {
         parent::__construct($code);
         $this->data = $data;
     }

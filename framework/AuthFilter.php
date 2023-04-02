@@ -2,7 +2,7 @@
 
 namespace framework;
 
-interface auth_filter {
+interface AuthFilter {
     /**
      * @param string|NULL $token 身份验证令牌
      * @param $class_name

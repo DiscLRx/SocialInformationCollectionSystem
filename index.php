@@ -1,7 +1,7 @@
 <?php
 
-use framework\core;
+use framework\Core;
 
-include 'framework/core.php';
-(new core())->run();
+include 'framework/Core.php';
+(new Core())->run();
 

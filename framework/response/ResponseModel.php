@@ -2,7 +2,7 @@
 
 namespace framework\response;
 
-class response_model {
+class ResponseModel {
     /**
      * @var int
      * 0 success
@@ -11,7 +11,7 @@ class response_model {
      */
     public int $code;
 
-    public function __construct($code) {
+    public function __construct(int $code) {
         $this->code = $code;
     }
 }

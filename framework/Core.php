@@ -2,20 +2,20 @@
 
 namespace framework;
 
-use framework\response\response;
+use framework\response\Response;
 use ReflectionClass;
 
-require_once 'framework/response/response.php';
-require_once 'framework/app_config.php';
-require_once 'framework/auth_filter.php';
+require_once 'framework/response/Response.php';
+require_once 'framework/AppEnv.php';
+require_once 'framework/AuthFilter.php';
 require_once 'framework/RequestMapping.php';
 
-final class core {
+final class Core {
 
     function run(): void {
         spl_autoload_register(function ($class_name) {
             $file = NULL;
-            $json = file_get_contents('configurations/ClassPathMapper.json');
+            $json = file_get_contents('configuration/ClassPathMapper.json');
             $mappers = json_decode($json);
             foreach ($mappers as $mapper) {
                 if ($mapper->name == $class_name) {
@@ -32,32 +32,24 @@ final class core {
     }
 
     private function load_app_config(): void {
-        $reflect = new ReflectionClass(app_config::class);
+        $reflect = new ReflectionClass(AppEnv::class);
         $props = $reflect->getProperties();
 
-        $json = file_get_contents('configurations/ApplicationConfig.json');
+        $json = file_get_contents('configuration/AppEnvConfig.json');
         $cfg_obj = json_decode($json);
         foreach ($props as $prop) {
             $field_name = $prop->getName();
-            app_config::$$field_name = $cfg_obj->$field_name;
+            AppEnv::$$field_name = $cfg_obj->$field_name;
         }
     }
 
     private function route(): void {
-        $uri_arr =
-            explode(
-                '/',
-                trim(
-                    $_SERVER['REQUEST_URI']
-                    , '/'
-                )
-            );
+        $uri_arr = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
         $http_method = $_SERVER['REQUEST_METHOD'];
         $body = file_get_contents('php://input');
 
         $req_analysis = $this->get_controller_func($http_method, $uri_arr);
         if ($req_analysis===false){
-            echo "class or func not found";
             response::http404();
         }
         $controller_class = $req_analysis[0];
@@ -70,12 +62,11 @@ final class core {
         $this->security($token, $controller_class, $func_name);
 
         $controller->$func_name($uri_arr, $body);
-
     }
 
     private function get_controller_func($http_method, $req_uri_arr) : array | bool {
 
-        foreach (app_config::$controller_classes as $class_name) {
+        foreach (AppEnv::$controller_classes as $class_name) {
             $reflection = new ReflectionClass($class_name);
             foreach ($reflection->getMethods() as $method) {
                 foreach ($method->getAttributes() as $attribute) {
@@ -110,7 +101,7 @@ final class core {
     }
 
     private function security($token, $controller_class, $func_name): void {
-        $auth_filter_name = app_config::$auth_filter_impl;
+        $auth_filter_name = AppEnv::$auth_filter_impl;
         if ($auth_filter_name === "") {
             return;
         }
