@@ -2,8 +2,11 @@
 
 namespace framework;
 
+use Error;
+use Exception;
 use framework\response\Response;
 use ReflectionClass;
+use ReflectionObject;
 
 require_once 'framework/response/Response.php';
 require_once 'framework/AppEnv.php';
@@ -12,10 +15,20 @@ require_once 'framework/RequestMapping.php';
 
 final class Core {
 
-    function run(): void {
+    /**
+     * @param string $app_env_config 框架核心配置文件的路径
+     * @return void
+     */
+    function run(string $app_env_config): void {
+        try {
+            $this->load_app_config($app_env_config);
+        } catch (Exception|Error $e) {
+            echo $e->getMessage();
+            Response::http500();
+        }
         spl_autoload_register(function ($class_name) {
             $file = NULL;
-            $json = file_get_contents('configuration/ClassPathMapper.json');
+            $json = file_get_contents(AppEnv::$class_path_mapper);
             $mappers = json_decode($json);
             foreach ($mappers as $mapper) {
                 if ($mapper->name == $class_name) {
@@ -27,19 +40,33 @@ final class Core {
             }
             include $file;
         });
-        $this->load_app_config();
         $this->route();
     }
 
-    private function load_app_config(): void {
-        $reflect = new ReflectionClass(AppEnv::class);
-        $props = $reflect->getProperties();
+    private function load_app_config($app_env_config): void {
+        if (!file_exists($app_env_config)) {
+            throw new Exception("无法读取配置文件{$app_env_config}");
+        }
+        $json = file_get_contents($app_env_config);
 
-        $json = file_get_contents('configuration/AppEnvConfig.json');
-        $cfg_obj = json_decode($json);
-        foreach ($props as $prop) {
-            $field_name = $prop->getName();
-            AppEnv::$$field_name = $cfg_obj->$field_name;
+        $json_obj = json_decode($json);
+        if ($json_obj===NULL){
+            throw new Exception("无法解析配置文件{$app_env_config}");
+        }
+        $json_props = (new ReflectionObject($json_obj))->getProperties();
+        $appenv_props = (new ReflectionClass(AppEnv::class))->getProperties();
+        $json_props_name = [];
+        foreach ($json_props as $jprop) {
+            $json_props_name[] = $jprop->getName();
+        }
+        foreach ($appenv_props as $aprop) {
+            $aprop_name = $aprop->getName();
+            if (in_array($aprop_name, $json_props_name)) {
+                if (($atype = $aprop->getType()->getName()) !==  ($jtype = gettype($json_obj->$aprop_name))){
+                    throw new Exception("配置文件{$app_env_config}值类型错误, 字段{$aprop->getName()}应为{$atype}, 但提供的值为{$jtype}");
+                }
+                AppEnv::$$aprop_name = $json_obj->$aprop_name;
+            }
         }
     }
 
@@ -49,7 +76,7 @@ final class Core {
         $body = file_get_contents('php://input');
 
         $req_analysis = $this->get_controller_func($http_method, $uri_arr);
-        if ($req_analysis===false){
+        if ($req_analysis === false) {
             response::http404();
         }
         $controller_class = $req_analysis[0];
@@ -64,23 +91,23 @@ final class Core {
         $controller->$func_name($uri_arr, $body);
     }
 
-    private function get_controller_func($http_method, $req_uri_arr) : array | bool {
+    private function get_controller_func($http_method, $req_uri_arr): array|bool {
 
         foreach (AppEnv::$controller_classes as $class_name) {
             $reflection = new ReflectionClass($class_name);
             foreach ($reflection->getMethods() as $method) {
                 foreach ($method->getAttributes() as $attribute) {
-                    if ($attribute->getName()===trim(RequestMapping::class, '\\')){
+                    if ($attribute->getName() === trim(RequestMapping::class, '\\')) {
                         $attribute = $attribute->newInstance();
 
                         // 匹配http method
-                        if ($attribute->method !== $http_method){
+                        if ($attribute->method !== $http_method) {
                             break;
                         }
 
                         $attr_uri_arr = $attribute->uri_arr;
                         // 匹配参数数组长度
-                        if (sizeof($req_uri_arr) !== sizeof($attr_uri_arr)){
+                        if (sizeof($req_uri_arr) !== sizeof($attr_uri_arr)) {
                             break;
                         }
 
@@ -90,7 +117,7 @@ final class Core {
                             $req_uri_arr[$key] = '*';
                         }
 
-                        if ($req_uri_arr === $attr_uri_arr){
+                        if ($req_uri_arr === $attr_uri_arr) {
                             return array($class_name, $method->getName());
                         }
                     }

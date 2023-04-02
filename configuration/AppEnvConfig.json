@@ -1,4 +1,5 @@
 {
+  "class_path_mapper": "configuration/ClassPathMapper.json",
   "log_file": "sics.log",
   "log_level": "info",
   "auth_filter_impl": "security\\TokenAuthFilter",
