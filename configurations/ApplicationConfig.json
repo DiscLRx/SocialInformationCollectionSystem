@@ -1,5 +1,13 @@
 {
   "log_file": "sics.log",
   "log_level": "info",
-  "auth_filter_impl": "security\\token_auth_filter"
+  "auth_filter_impl": "security\\token_auth_filter",
+  "controller_classes": [
+    "user_api\\questionnnaires_controller",
+    "user_api\\users_controller",
+    "admin_api\\admin_controller",
+    "admin_api\\users_controller",
+    "admin_api\\questionnnaires_controller",
+    "visitor_api\\questionnnaires_controller"
+  ]
 }

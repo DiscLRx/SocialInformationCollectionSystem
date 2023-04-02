@@ -1,8 +1,9 @@
 <?php
 
-namespace framework\request_mapping;
+namespace framework;
 
 use Attribute;
+
 #[Attribute(Attribute::TARGET_METHOD)]
 class RequestMapping {
     public string $method;

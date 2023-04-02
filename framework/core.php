@@ -2,14 +2,13 @@
 
 namespace framework;
 
-use framework\request_mapping\RequestMapping;
 use framework\response\response;
 use ReflectionClass;
 
 require_once 'framework/response/response.php';
 require_once 'framework/app_config.php';
 require_once 'framework/auth_filter.php';
-require_once 'framework/request_mapping/RequestMapping.php';
+require_once 'framework/RequestMapping.php';
 
 final class core {
 
@@ -49,60 +48,59 @@ final class core {
             explode(
                 '/',
                 trim(
-                    str_replace('-', '_', $_SERVER['REQUEST_URI'])
+                    $_SERVER['REQUEST_URI']
                     , '/'
                 )
             );
         $http_method = $_SERVER['REQUEST_METHOD'];
         $body = file_get_contents('php://input');
 
-        $uri_analysis = $this->get_class_name($uri_arr);
-        if (!$uri_analysis) {
+        $req_analysis = $this->get_controller_func($http_method, $uri_arr);
+        if ($req_analysis===false){
+            echo "class or func not found";
             response::http404();
         }
-        $controller_class = $uri_analysis[0];
-        $params = $uri_analysis[1];
-
+        $controller_class = $req_analysis[0];
+        $func_name = $req_analysis[1];
         $controller = new $controller_class();
-        $func_name = $this->get_func_name(
-            $controller_class,
-            $http_method,
-            explode('/', trim($_SERVER['REQUEST_URI'], '/'))
-        );
-        if ($func_name === false){
-            response::http404();
-        }
 
         //权限验证
         $headers = getallheaders();
         $token = $headers['token'] ?? NULL;
         $this->security($token, $controller_class, $func_name);
-        $controller->$func_name($params, $body);
+
+        $controller->$func_name($uri_arr, $body);
 
     }
 
-    private function get_func_name($class_name, $http_method, $target_uri_arr) : string | bool{
-        assert(class_exists($class_name));
-        $reflection = new ReflectionClass($class_name);
-        foreach ($reflection->getMethods() as $method) {
-            foreach ($method->getAttributes() as $attribute) {
-                if ($attribute->getName()===trim(RequestMapping::class, '\\')){
-                    $attribute = $attribute->newInstance();
-                    if ($attribute->method !== $http_method){
-                        continue;
-                    }
-                    $uri_arr_len = sizeof($target_uri_arr);
-                    $attr_uri_arr = $attribute->uri_arr;
-                    if ($uri_arr_len === sizeof($attr_uri_arr)){
-                        $equal = true;
-                        for ( $i = 0; $i < $uri_arr_len ; $i++) {
-                            if (!($attr_uri_arr[$i] === '*' || $attr_uri_arr[$i] === $target_uri_arr[$i])){
-                                $equal = false;
-                                break;
-                            }
+    private function get_controller_func($http_method, $req_uri_arr) : array | bool {
+
+        foreach (app_config::$controller_classes as $class_name) {
+            $reflection = new ReflectionClass($class_name);
+            foreach ($reflection->getMethods() as $method) {
+                foreach ($method->getAttributes() as $attribute) {
+                    if ($attribute->getName()===trim(RequestMapping::class, '\\')){
+                        $attribute = $attribute->newInstance();
+
+                        // 匹配http method
+                        if ($attribute->method !== $http_method){
+                            break;
                         }
-                        if ($equal){
-                            return $method->getName();
+
+                        $attr_uri_arr = $attribute->uri_arr;
+                        // 匹配参数数组长度
+                        if (sizeof($req_uri_arr) !== sizeof($attr_uri_arr)){
+                            break;
+                        }
+
+                        // 替换请求uri的参数为 *
+                        $keys = array_keys($attr_uri_arr, '*');
+                        foreach ($keys as $key) {
+                            $req_uri_arr[$key] = '*';
+                        }
+
+                        if ($req_uri_arr === $attr_uri_arr){
+                            return array($class_name, $method->getName());
                         }
                     }
                 }
@@ -122,24 +120,6 @@ final class core {
         } else {
             $auth_filter->do_after_denied();
         }
-    }
-
-    private function get_class_name($uri_arr): bool|array {
-        $temp_arr = $uri_arr;
-        $temp_arr[] = NULL;
-        do {
-            if ($temp_arr != []) {
-                array_pop($temp_arr);
-            } else {
-                return false;
-            }
-            $class_name = implode('\\', $temp_arr) . '_controller';
-        } while (!class_exists($class_name));
-        $params = [];
-        foreach (array_diff_key($uri_arr, $temp_arr) as $p) {
-            $params[] = $p;
-        }
-        return array($class_name, $params);
     }
 
 }
