@@ -12,6 +12,7 @@ require_once 'framework/response/Response.php';
 require_once 'framework/AppEnv.php';
 require_once 'framework/AuthFilter.php';
 require_once 'framework/RequestMapping.php';
+require_once 'framework/Log.php';
 
 final class Core {
 
@@ -23,7 +24,7 @@ final class Core {
         try {
             $this->load_app_config($app_env_config);
         } catch (Exception|Error $e) {
-            echo $e->getMessage();
+            Log::fatal($e->getMessage());
             Response::http500();
         }
         spl_autoload_register(function ($class_name) {
@@ -71,8 +72,12 @@ final class Core {
     }
 
     private function route(): void {
-        $uri_arr = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+        $uri = $_SERVER['REQUEST_URI'];
         $http_method = $_SERVER['REQUEST_METHOD'];
+        Log::info("{$http_method} {$uri}");
+
+        $uri_arr = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+
         $body = file_get_contents('php://input');
 
         $req_analysis = $this->get_controller_func($http_method, $uri_arr);

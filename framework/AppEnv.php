@@ -13,7 +13,7 @@ class AppEnv {
     /**
      * @var string  日志文件名称
      */
-    public static string $log_file = "";
+    public static string $log_file = "sics.log";
     /**
      * @var string  日志级别
      */
