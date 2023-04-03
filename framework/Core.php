@@ -76,9 +76,22 @@ final class Core {
         $http_method = $_SERVER['REQUEST_METHOD'];
         Log::info("{$http_method} {$uri}");
 
-        $uri_arr = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+        //分割路径和参数部分
+        $uri = explode('?', $uri, 2);
 
-        $body = file_get_contents('php://input');
+        $uri_arr = explode('/', trim($uri[0], '/'));
+        foreach ($uri_arr as $index => $value) {
+            $uri_arr[$index] = $this->uri_decode($value);
+        }
+
+        $uri_query_map = [];
+        if (isset($uri[1])) {
+            $uri_query = explode('&', $uri[1]);
+            foreach ($uri_query as $item){
+                $kv = explode('=', $item, 2);
+                $uri_query_map[$this->uri_decode($kv[0])] = $this->uri_decode($kv[1]);
+            }
+        }
 
         $req_analysis = $this->get_controller_func($http_method, $uri_arr);
         if ($req_analysis === false) {
@@ -86,14 +99,22 @@ final class Core {
         }
         $controller_class = $req_analysis[0];
         $func_name = $req_analysis[1];
-        $controller = new $controller_class();
 
         //权限验证
         $headers = getallheaders();
         $token = $headers['token'] ?? NULL;
         $this->security($token, $controller_class, $func_name);
 
-        $controller->$func_name($uri_arr, $body);
+        $body = file_get_contents('php://input');
+
+        $controller = new $controller_class();
+        $controller->$func_name($uri_arr, $uri_query_map, $body);
+    }
+
+    private function uri_decode(string $uri) : string{
+        $uri = str_replace('+', '%2B', $uri);
+        $uri = urldecode($uri);
+        return $uri;
     }
 
     private function get_controller_func($http_method, $req_uri_arr): array|bool {
