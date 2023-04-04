@@ -2,51 +2,39 @@
 
 namespace framework\response;
 
-use Exception;
-use framework\response\ResponseModel;
-use framework\response\ResponseStringModel;
-use framework\response\ResponseObjectModel;
-
 require_once 'ResponseModel.php';
-require_once 'ResponseStringModel.php';
-require_once 'ResponseObjectModel.php';
+require_once 'ResponseDataModel.php';
 
 class Response {
 
-
-    public static function http404(): void {
+    public static function http404() {
         http_response_code(404);
-        exit();
+        return NULL;
     }
 
-    public static function http405(): void {
+    public static function http405() {
         http_response_code(405);
-        exit();
+        return NULL;
     }
 
-    public static function http500(): void {
+    public static function http500() {
         http_response_code(500);
-        exit();
+        return NULL;
     }
 
-    public static function success($data = NULL): void {
+    public static function success($data = NULL): ResponseModel {
         http_response_code(200);
-        if ($data == NULL){
+        if ($data == NULL) {
             $response_result = new ResponseModel(0);
-        } else if (is_string($data)) {
-            $response_result = new ResponseStringModel(0, $data);
         } else {
-            $response_result = new ResponseObjectModel(0, $data);
+            $response_result = new ResponseDataModel(0, $data);
         }
-        echo json_encode($response_result);
-        exit();
+        return $response_result;
     }
 
-    public static function permission_denied() : void{
+    public static function permission_denied(): ResponseModel {
         http_response_code(200);
-        $response_result =  new ResponseModel(1);
-        echo json_encode($response_result);
-        exit();
+        return new ResponseModel(1);
     }
 
 

@@ -5,6 +5,7 @@ namespace framework;
 use Error;
 use Exception;
 use framework\response\Response;
+use framework\response\ResponseModel;
 use ReflectionClass;
 use ReflectionObject;
 
@@ -23,25 +24,28 @@ final class Core {
     function run(string $app_env_config): void {
         try {
             $this->load_app_config($app_env_config);
+            spl_autoload_register(function ($class_name) {
+                $file = NULL;
+                $json = file_get_contents(AppEnv::$class_path_mapper);
+                $mappers = json_decode($json);
+                foreach ($mappers as $mapper) {
+                    if ($mapper->name == $class_name) {
+                        $file = $mapper->path;
+                    }
+                }
+                if ($file === NULL) {
+                    return;
+                }
+                include $file;
+            });
+            $res_body = $this->route();
+            if ($res_body!==NULL){
+                echo json_encode($res_body);
+            }
         } catch (Exception|Error $e) {
             Log::fatal($e->getMessage());
             Response::http500();
         }
-        spl_autoload_register(function ($class_name) {
-            $file = NULL;
-            $json = file_get_contents(AppEnv::$class_path_mapper);
-            $mappers = json_decode($json);
-            foreach ($mappers as $mapper) {
-                if ($mapper->name == $class_name) {
-                    $file = $mapper->path;
-                }
-            }
-            if ($file === NULL) {
-                return;
-            }
-            include $file;
-        });
-        $this->route();
     }
 
     private function load_app_config($app_env_config): void {
@@ -71,7 +75,7 @@ final class Core {
         }
     }
 
-    private function route(): void {
+    private function route(): ResponseModel | null {
         $uri = $_SERVER['REQUEST_URI'];
         $http_method = $_SERVER['REQUEST_METHOD'];
         Log::info("{$http_method} {$uri}");
@@ -95,7 +99,7 @@ final class Core {
 
         $req_analysis = $this->get_controller_func($http_method, $uri_arr);
         if ($req_analysis === false) {
-            response::http404();
+            return Response::http404();
         }
         $controller_class = $req_analysis[0];
         $func_name = $req_analysis[1];
@@ -103,18 +107,19 @@ final class Core {
         //权限验证
         $headers = getallheaders();
         $token = $headers['token'] ?? NULL;
-        $this->security($token, $controller_class, $func_name);
+        if(!$this->security($token, $controller_class, $func_name)){
+            return Response::permission_denied();
+        }
 
         $body = file_get_contents('php://input');
 
         $controller = new $controller_class();
-        $controller->$func_name($uri_arr, $uri_query_map, $body);
+        return $controller->$func_name($uri_arr, $uri_query_map, $body);
     }
 
     private function uri_decode(string $uri) : string{
         $uri = str_replace('+', '%2B', $uri);
-        $uri = urldecode($uri);
-        return $uri;
+        return urldecode($uri);
     }
 
     private function get_controller_func($http_method, $req_uri_arr): array|bool {
@@ -153,17 +158,19 @@ final class Core {
         return false;
     }
 
-    private function security($token, $controller_class, $func_name): void {
+    private function security($token, $controller_class, $func_name): bool {
         $auth_filter_name = AppEnv::$auth_filter_impl;
         if ($auth_filter_name === "") {
-            return;
+            return true;
         }
         $auth_filter = new $auth_filter_name();
-        if ($auth_filter->do_filter($token, $controller_class, $func_name)) {
+        $filter_ret = $auth_filter->do_filter($token, $controller_class, $func_name);
+        if ($filter_ret) {
             $auth_filter->do_after_accept();
         } else {
             $auth_filter->do_after_denied();
         }
+        return $filter_ret;
     }
 
 }
