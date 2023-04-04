@@ -4,6 +4,11 @@ namespace framework;
 
 use Error;
 use Exception;
+use framework\exception\ClassNotFoundException;
+use framework\exception\ErrorException;
+use framework\exception\FileNotFoundException;
+use framework\exception\LoadConfigException;
+use framework\log\Log;
 use framework\response\Response;
 use framework\response\ResponseModel;
 use ReflectionClass;
@@ -13,7 +18,13 @@ require_once 'framework/response/Response.php';
 require_once 'framework/AppEnv.php';
 require_once 'framework/AuthFilter.php';
 require_once 'framework/RequestMapping.php';
-require_once 'framework/Log.php';
+require_once 'framework/log/Log.php';
+require_once 'framework/log/LogLevel.php';
+require_once 'framework/exception/LoggerException.php';
+require_once 'framework/exception/LoadConfigException.php';
+require_once 'framework/exception/ClassNotFoundException.php';
+require_once 'framework/exception/FileNotFoundException.php';
+require_once 'framework/exception/ErrorException.php';
 
 final class Core {
 
@@ -22,41 +33,59 @@ final class Core {
      * @return void
      */
     function run(string $app_env_config): void {
+
         try {
-            $this->load_app_config($app_env_config);
-            spl_autoload_register(function ($class_name) {
-                $file = NULL;
-                $json = file_get_contents(AppEnv::$class_path_mapper);
-                $mappers = json_decode($json);
-                foreach ($mappers as $mapper) {
-                    if ($mapper->name == $class_name) {
-                        $file = $mapper->path;
-                    }
-                }
-                if ($file === NULL) {
-                    return;
-                }
-                include $file;
-            });
+            $this->php_basic_setting();
+            try {
+                $this->load_app_config($app_env_config);
+            } catch (Exception|Error $e) {
+                throw new LoadConfigException($e->getMessage());
+            }
             $res_body = $this->route();
-            if ($res_body!==NULL){
+            if ($res_body !== null) {
                 echo json_encode($res_body);
             }
+        } catch (FileNotFoundException|ClassNotFoundException|LoadConfigException $e){
+            $e->log_trace();
+            Response::http500();
         } catch (Exception|Error $e) {
             Log::fatal($e->getMessage());
             Response::http500();
         }
     }
 
+    private function php_basic_setting(): void {
+        set_error_handler(function ($err_code, $err_str, $err_file, $err_line) {
+            throw new ErrorException($err_code, $err_str, $err_file, $err_line);
+        }, E_ERROR | E_WARNING);
+        spl_autoload_register(function ($class_name) {
+            $file = null;
+            $json = file_get_contents(AppEnv::$class_path_mapper);
+            $mappers = json_decode($json);
+            foreach ($mappers as $mapper) {
+                if ($mapper->name == $class_name) {
+                    $file = $mapper->path;
+                }
+            }
+            if ($file===null) {
+                throw new FileNotFoundException($file);
+            }
+            if (!file_exists($file)) {
+                throw new FileNotFoundException($file);
+            }
+            require_once $file;
+        });
+    }
+
     private function load_app_config($app_env_config): void {
         if (!file_exists($app_env_config)) {
-            throw new Exception("无法读取配置文件{$app_env_config}");
+            throw new LoadConfigException("无法读取配置文件{$app_env_config}");
         }
         $json = file_get_contents($app_env_config);
 
         $json_obj = json_decode($json);
-        if ($json_obj===NULL){
-            throw new Exception("无法解析配置文件{$app_env_config}");
+        if ($json_obj === null) {
+            throw new LoadConfigException("无法解析配置文件{$app_env_config}");
         }
         $json_props = (new ReflectionObject($json_obj))->getProperties();
         $appenv_props = (new ReflectionClass(AppEnv::class))->getProperties();
@@ -67,18 +96,18 @@ final class Core {
         foreach ($appenv_props as $aprop) {
             $aprop_name = $aprop->getName();
             if (in_array($aprop_name, $json_props_name)) {
-                if (($atype = $aprop->getType()->getName()) !==  ($jtype = gettype($json_obj->$aprop_name))){
-                    throw new Exception("配置文件{$app_env_config}值类型错误, 字段{$aprop->getName()}应为{$atype}, 但提供的值为{$jtype}");
+                if (($atype = $aprop->getType()->getName()) !== ($jtype = gettype($json_obj->$aprop_name))) {
+                    throw new LoadConfigException("配置文件{$app_env_config}值类型错误, 字段{$aprop->getName()}应为{$atype}, 但提供的值为{$jtype}");
                 }
                 AppEnv::$$aprop_name = $json_obj->$aprop_name;
             }
         }
     }
 
-    private function route(): ResponseModel | null {
+    private function route(): ResponseModel|null {
         $uri = $_SERVER['REQUEST_URI'];
         $http_method = $_SERVER['REQUEST_METHOD'];
-        Log::info("{$http_method} {$uri}");
+        Log::info("{$http_method} {$uri} From {$_SERVER['REMOTE_ADDR']}:{$_SERVER['REMOTE_PORT']}");
 
         //分割路径和参数部分
         $uri = explode('?', $uri, 2);
@@ -91,7 +120,7 @@ final class Core {
         $uri_query_map = [];
         if (isset($uri[1])) {
             $uri_query = explode('&', $uri[1]);
-            foreach ($uri_query as $item){
+            foreach ($uri_query as $item) {
                 $kv = explode('=', $item, 2);
                 $uri_query_map[$this->uri_decode($kv[0])] = $this->uri_decode($kv[1]);
             }
@@ -106,8 +135,8 @@ final class Core {
 
         //权限验证
         $headers = getallheaders();
-        $token = $headers['token'] ?? NULL;
-        if(!$this->security($token, $controller_class, $func_name)){
+        $token = $headers['token'] ?? null;
+        if (!$this->security($token, $controller_class, $func_name)) {
             return Response::permission_denied();
         }
 
@@ -117,7 +146,7 @@ final class Core {
         return $controller->$func_name($uri_arr, $uri_query_map, $body);
     }
 
-    private function uri_decode(string $uri) : string{
+    private function uri_decode(string $uri): string {
         $uri = str_replace('+', '%2B', $uri);
         return urldecode($uri);
     }
@@ -125,6 +154,9 @@ final class Core {
     private function get_controller_func($http_method, $req_uri_arr): array|bool {
 
         foreach (AppEnv::$controller_classes as $class_name) {
+            if (!class_exists($class_name)) {
+                throw new ClassNotFoundException($class_name);
+            }
             $reflection = new ReflectionClass($class_name);
             foreach ($reflection->getMethods() as $method) {
                 foreach ($method->getAttributes() as $attribute) {
