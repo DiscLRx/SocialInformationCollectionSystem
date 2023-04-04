@@ -15,8 +15,9 @@ class Log {
         fclose($f);
     }
 
-    public static function nextline($msg): void {
-        $data = "        {$msg}\n";
+    public static function nextline($msg, $pre_space = 8): void {
+        $pre_str = str_repeat(' ', $pre_space);
+        $data = "{$pre_str}{$msg}\n";
         $f = fopen(AppEnv::$log_file, 'a');
         fwrite($f, $data);
         fclose($f);
