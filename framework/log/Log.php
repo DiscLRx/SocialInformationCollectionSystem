@@ -1,16 +1,19 @@
 <?php
 
-namespace framework;
+namespace framework\log;
+
+use framework\AppEnv;
 
 class Log {
-    private static function log(string $level, string $msg) {
+
+    public static function log(LogLevel $level, string $msg): void {
         $ts = explode(' ',microtime());
-        $data = date('[Y-m-d H:i:s.', $ts[1]) . (int)(floatval($ts[0])*1000) . ']' . $level . ' ' . $msg . "\n";
+        $data = date('[Y-m-d H:i:s.', $ts[1]) . (int)(floatval($ts[0])*1000) . '][' . $level->name . '] ' . $msg . "\n";
         $f = fopen(AppEnv::$log_file, 'a');
         fwrite($f, $data);
     }
 
-    public static function debug(string $msg) {
+    public static function debug(string $msg): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug" => false,
@@ -18,10 +21,10 @@ class Log {
             }) {
             return;
         }
-        self::log('[DEBUG]', $msg);
+        self::log(LogLevel::DEBUG, $msg);
     }
 
-    public static function info(string $msg) {
+    public static function info(string $msg): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug", "info" => false,
@@ -29,10 +32,10 @@ class Log {
             }) {
             return;
         }
-        self::log('[INFO]', $msg);
+        self::log(LogLevel::INFO, $msg);
     }
 
-    public static function warn(string $msg) {
+    public static function warn(string $msg): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug", "info", "warn"  => false,
@@ -40,10 +43,10 @@ class Log {
             }) {
             return;
         }
-        self::log('[WARN]', $msg);
+        self::log(LogLevel::WARN, $msg);
     }
 
-    public static function error(string $msg) {
+    public static function error(string $msg): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug", "info", "warn", "error" => false,
@@ -51,10 +54,10 @@ class Log {
             }) {
             return;
         }
-        self::log('[ERROR]', $msg);
+        self::log(LogLevel::ERROR, $msg);
     }
 
-    public static function fatal(string $msg) {
+    public static function fatal(string $msg): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug", "info", "warn", "error", "fatal" => false,
@@ -62,6 +65,6 @@ class Log {
             }) {
             return;
         }
-        self::log('[FATAL]', $msg);
+        self::log(LogLevel::FATAL, $msg);
     }
 }
