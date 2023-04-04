@@ -8,9 +8,18 @@ class Log {
 
     public static function log(LogLevel $level, string $msg): void {
         $ts = explode(' ',microtime());
-        $data = date('[Y-m-d H:i:s.', $ts[1]) . (int)(floatval($ts[0])*1000) . '][' . $level->name . '] ' . $msg . "\n";
+        $date = date('[Y-m-d H:i:s.', $ts[1]) . str_pad((int)(floatval($ts[0])*1000), 3, '0') . ']';
+        $data = $date . '[' . str_pad($level->name, 5) . '] ' . $msg . "\n";
         $f = fopen(AppEnv::$log_file, 'a');
         fwrite($f, $data);
+        fclose($f);
+    }
+
+    public static function nextline($msg): void {
+        $data = "        {$msg}\n";
+        $f = fopen(AppEnv::$log_file, 'a');
+        fwrite($f, $data);
+        fclose($f);
     }
 
     public static function debug(string $msg): void {
