@@ -28,6 +28,7 @@ require_once 'framework/log/LogLevel.php';
 require_once 'framework/exception/LoggerException.php';
 require_once 'framework/exception/LoadConfigException.php';
 require_once 'framework/exception/ClassNotFoundException.php';
+require_once 'framework/exception/AttributeNotFoundException.php';
 require_once 'framework/exception/FileNotFoundException.php';
 require_once 'framework/exception/InterfaceNotImplementException.php';
 require_once 'framework/exception/ErrorException.php';

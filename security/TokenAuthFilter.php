@@ -2,51 +2,42 @@
 
 namespace security;
 
-use Exception;
 use framework\AuthFilter;
-use framework\response\response;
+use framework\exception\AttributeNotFoundException;
+use framework\log\LogLevel;
 use ReflectionClass;
-use ReflectionException;
 
 require_once 'security/RequireAuthority.php';
 
 class TokenAuthFilter implements AuthFilter {
 
-    public function do_filter(?string $token, $class_name, string $func_name): bool {
+    public function do_filter(?string $token, string $class_name, string $func_name): bool {
         $require_auth = $this->get_require_authorities($class_name, $func_name);
-        $user_auth = $this->token_verify("");
-
-        return true;
+        $user_auth = $this->token_verify($token);
+        return match ($user_auth) {
+            "Admin", $require_auth => true,
+            default => false
+        };
     }
 
-    private function get_require_authorities(string $class_name, string $func_name){
-        assert(class_exists($class_name));
+    private function get_require_authorities(string $class_name, string $func_name) {
         $reflection = new ReflectionClass($class_name);
-        try {
-            $method = $reflection->getMethod($func_name);
-        } catch (ReflectionException $e) {
-            // TODO 日志
-        }
-        try {
-            foreach ($method->getAttributes() as $attribute) {
-                if ($attribute->getName()===trim(RequireAuthority::class, '\\')) {
-                    return $attribute->newInstance()->value;
-                }
+        $method = $reflection->getMethod($func_name);
+
+        foreach ($method->getAttributes() as $attribute) {
+            if ($attribute->getName() === trim(RequireAuthority::class, '\\')) {
+                return $attribute->newInstance()->value;
             }
-            throw new Exception("attribute RequireAuthority not found");
-        } catch (Exception $e) {
-            // TODO 日志
         }
+        throw new AttributeNotFoundException("RequireAuthority", $class_name, $func_name, LogLevel::ERROR);
     }
 
-    private function token_verify(string $token) : string{
+    private function token_verify(string $token): string {
         // TODO token校验
-        return "";
+        return "Admin";
     }
 
     public function do_after_accept(): void {}
 
-    public function do_after_denied(): void {
-        response::permission_denied();
-    }
+    public function do_after_denied(): void {}
 }
