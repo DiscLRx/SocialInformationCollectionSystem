@@ -26,5 +26,9 @@
   {
     "name": "security\\TokenAuthFilter",
     "path": "security/TokenAuthFilter.php"
+  },
+  {
+    "name": "exception\\ExceptionHandlerImpl",
+    "path": "exception/ExceptionHandlerImpl.php"
   }
 ]

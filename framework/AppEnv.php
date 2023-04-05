@@ -23,6 +23,10 @@ class AppEnv {
      */
     public static string $auth_filter_impl = "";
     /**
+     * @var string  统一异常处理器实现类名称
+     */
+    public static string $exception_handler_impl = "";
+    /**
      * @var array   controller类名称
      */
     public static array $controller_classes = [];

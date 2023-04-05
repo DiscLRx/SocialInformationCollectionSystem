@@ -3,6 +3,7 @@
   "log_file": "sics.log",
   "log_level": "info",
   "auth_filter_impl": "security\\TokenAuthFilter",
+  "exception_handler_impl": "exception\\ExceptionHandlerImpl",
   "controller_classes": [
     "user\\QuestionnnairesController",
     "user\\UsersController",

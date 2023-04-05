@@ -21,6 +21,7 @@ use ReflectionObject;
 require_once 'framework/response/Response.php';
 require_once 'framework/AppEnv.php';
 require_once 'framework/AuthFilter.php';
+require_once 'framework/ExceptionHandler.php';
 require_once 'framework/RequestMapping.php';
 require_once 'framework/log/Log.php';
 require_once 'framework/log/LogLevel.php';
@@ -46,6 +47,14 @@ final class Core {
             if ($res_body !== null) {
                 echo json_encode($res_body);
             }
+        } catch (Exception|Error $e) {
+            $this->handle_exception($e);
+        }
+    }
+
+    private function handle_exception(Exception|Error $e): void {
+        try {
+            $this->exec_exception_handler($e);
         } catch (LoggerException $e){
             $e->log_trace();
             Response::http500();
@@ -53,8 +62,29 @@ final class Core {
             Log::fatal($e->getMessage());
             Log::multiline($e->getTrace(), foreach_handler: function ($index, $item) {
                 return FormatUtil::trace_line($index, $item);
-            });;
+            });
             Response::http500();
+        }
+    }
+
+    /**
+     * @throws Exception 未定义异常处理器或异常处理器无法处理异常时抛出
+     */
+    private function exec_exception_handler(Exception|Error $e): void {
+        $exception_handler_name = AppEnv::$exception_handler_impl;
+        if ($exception_handler_name === "") {
+            throw $e;
+        } else {
+            $handler = new AppEnv::$exception_handler_impl();
+            try {
+                if (!$handler instanceof ExceptionHandler) {
+                    throw new InterfaceNotImplementException(ExceptionHandler::class, $handler, LogLevel::ERROR);
+                }
+                $handler->handle($e);
+            } catch (InterfaceNotImplementException $ie) {
+                $ie->log_trace();
+                throw $e;
+            }
         }
     }
 
