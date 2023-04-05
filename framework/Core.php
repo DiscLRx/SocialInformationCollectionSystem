@@ -71,10 +71,15 @@ final class Core {
             $file = null;
             $json = file_get_contents(AppEnv::$class_path_mapper);
             $mappers = json_decode($json);
+            $match = false;
             foreach ($mappers as $mapper) {
                 if ($mapper->name == $class_name) {
+                    $match = true;
                     $file = $mapper->path;
                 }
+            }
+            if ($match===false){
+                throw new ClassNotFoundException($class_name);
             }
             if ($file===null) {
                 throw new FileNotFoundException($file);
