@@ -1,2 +1,4 @@
 .idea
 *.log
+DatabaseDescription.md
+nginx.htaccess
