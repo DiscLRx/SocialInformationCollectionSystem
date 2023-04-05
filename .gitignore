@@ -1,4 +1,4 @@
 .idea
 *.log
-DatabaseDescription.md
+DatabaseConfig.json
 nginx.htaccess
