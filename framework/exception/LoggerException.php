@@ -11,7 +11,7 @@ class LoggerException extends RuntimeException {
     protected LogLevel $level;
     protected string $msg;
 
-    protected function __construct(string $msg = "", LogLevel $level = LogLevel::ERROR){
+    public function __construct(string $msg = "", LogLevel $level = LogLevel::ERROR){
         parent::__construct($msg);
         $this->level = $level;
         $this->msg = $msg;
