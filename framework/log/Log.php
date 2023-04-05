@@ -15,12 +15,19 @@ class Log {
         fclose($f);
     }
 
-    public static function nextline($msg, $pre_space = 8): void {
+    public static function nextline(string $msg, int $pre_space = 8): void {
         $pre_str = str_repeat(' ', $pre_space);
         $data = "{$pre_str}{$msg}\n";
         $f = fopen(AppEnv::$log_file, 'a');
         fwrite($f, $data);
         fclose($f);
+    }
+
+    public static function multiline(array $items, int $pre_space = 8, ?callable $foreach_handler = null): void {
+        foreach ($items as $index => $item) {
+            $line = $foreach_handler === null ?  $item : $foreach_handler($index, $item);
+            Log::nextline($line, $pre_space);
+        }
     }
 
     public static function debug(string $msg): void {

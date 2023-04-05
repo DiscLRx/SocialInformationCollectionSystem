@@ -11,10 +11,10 @@ class LoggerException extends RuntimeException {
     protected LogLevel $level;
     protected string $msg;
 
-    protected function __construct(string $class_name, LogLevel $level = LogLevel::ERROR){
-        parent::__construct($class_name);
+    protected function __construct(string $msg = "", LogLevel $level = LogLevel::ERROR){
+        parent::__construct($msg);
         $this->level = $level;
-        $this->msg = $class_name;
+        $this->msg = $msg;
     }
 
     public function log(){
@@ -28,16 +28,9 @@ class LoggerException extends RuntimeException {
 
     public function log_trace(){
         Log::log($this->level, $this->msg);
-        $trace_arr = $this->getTrace();
-
-        foreach ($trace_arr as $trace_id => $item) {
-            $line = "Trace #{$trace_id}: " .
-                (isset($item['file']) ? "file \"{$item['file']}\" " : "") .
-                (isset($item['line']) ? "line {$item['line']}:    " : "") .
-                ((isset($item['class'])) ? "{$item['class']} " : "class? ") .
-                ((isset($item['type'])) ? "{$item['type']} " : "type? ") .
-                ((isset($item['function'])) ? "{$item['function']}()" : "function?");
-            Log::nextline($line);
-        }
+        Log::multiline($this->getTrace(), foreach_handler: function ($index, $item) {
+            return FormatUtil::trace_line($index, $item);
+        });
     }
+
 }

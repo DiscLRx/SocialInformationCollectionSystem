@@ -7,7 +7,9 @@ use Exception;
 use framework\exception\ClassNotFoundException;
 use framework\exception\ErrorException;
 use framework\exception\FileNotFoundException;
+use framework\exception\FormatUtil;
 use framework\exception\LoadConfigException;
+use framework\exception\LoggerException;
 use framework\log\Log;
 use framework\response\Response;
 use framework\response\ResponseModel;
@@ -25,6 +27,7 @@ require_once 'framework/exception/LoadConfigException.php';
 require_once 'framework/exception/ClassNotFoundException.php';
 require_once 'framework/exception/FileNotFoundException.php';
 require_once 'framework/exception/ErrorException.php';
+require_once 'framework/exception/FormatUtil.php';
 
 final class Core {
 
@@ -33,31 +36,34 @@ final class Core {
      * @return void
      */
     function run(string $app_env_config): void {
-
         try {
-            $this->php_basic_setting();
-            try {
-                $this->load_app_config($app_env_config);
-            } catch (Exception|Error $e) {
-                throw new LoadConfigException($e->getMessage());
-            }
+            $this->php_basic_setting($app_env_config);
+
             $res_body = $this->route();
             if ($res_body !== null) {
                 echo json_encode($res_body);
             }
-        } catch (FileNotFoundException|ClassNotFoundException|LoadConfigException $e){
+        } catch (LoggerException $e){
             $e->log_trace();
             Response::http500();
         } catch (Exception|Error $e) {
             Log::fatal($e->getMessage());
+            Log::multiline($e->getTrace(), foreach_handler: function ($index, $item) {
+                return FormatUtil::trace_line($index, $item);
+            });;
             Response::http500();
         }
     }
 
-    private function php_basic_setting(): void {
+    private function php_basic_setting($app_env_config): void {
         set_error_handler(function ($err_code, $err_str, $err_file, $err_line) {
             throw new ErrorException($err_code, $err_str, $err_file, $err_line);
         }, E_ERROR | E_WARNING);
+        try {
+            $this->load_app_config($app_env_config);
+        } catch (Exception|Error $e) {
+            throw new LoadConfigException($e->getMessage());
+        }
         spl_autoload_register(function ($class_name) {
             $file = null;
             $json = file_get_contents(AppEnv::$class_path_mapper);
