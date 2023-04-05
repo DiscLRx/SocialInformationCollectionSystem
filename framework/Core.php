@@ -8,9 +8,11 @@ use framework\exception\ClassNotFoundException;
 use framework\exception\ErrorException;
 use framework\exception\FileNotFoundException;
 use framework\exception\FormatUtil;
+use framework\exception\InterfaceNotImplementException;
 use framework\exception\LoadConfigException;
 use framework\exception\LoggerException;
 use framework\log\Log;
+use framework\log\LogLevel;
 use framework\response\Response;
 use framework\response\ResponseModel;
 use ReflectionClass;
@@ -26,6 +28,7 @@ require_once 'framework/exception/LoggerException.php';
 require_once 'framework/exception/LoadConfigException.php';
 require_once 'framework/exception/ClassNotFoundException.php';
 require_once 'framework/exception/FileNotFoundException.php';
+require_once 'framework/exception/InterfaceNotImplementException.php';
 require_once 'framework/exception/ErrorException.php';
 require_once 'framework/exception/FormatUtil.php';
 
@@ -202,6 +205,9 @@ final class Core {
             return true;
         }
         $auth_filter = new $auth_filter_name();
+        if (!$auth_filter instanceof AuthFilter){
+            throw new InterfaceNotImplementException(AuthFilter::class, $auth_filter_name, LogLevel::ERROR);
+        }
         $filter_ret = $auth_filter->do_filter($token, $controller_class, $func_name);
         if ($filter_ret) {
             $auth_filter->do_after_accept();
