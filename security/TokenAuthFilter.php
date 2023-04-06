@@ -12,15 +12,22 @@ require_once 'security/RequireAuthority.php';
 class TokenAuthFilter implements AuthFilter {
 
     public function do_filter(?string $token, string $class_name, string $func_name): bool {
-        $require_auth = $this->get_require_authorities($class_name, $func_name);
+        $require_auths = $this->get_require_authorities($class_name, $func_name);
+        if (in_array("PermitAll", $require_auths)){
+            return true;
+        }
+        if ($token === null) {
+            return false;
+        }
         $user_auth = $this->token_verify($token);
-        return match ($user_auth) {
-            "Admin", $require_auth => true,
-            default => false
-        };
+        if (in_array($user_auth, $require_auths) || $user_auth==="Admin") {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    private function get_require_authorities(string $class_name, string $func_name) {
+    private function get_require_authorities(string $class_name, string $func_name):array {
         $reflection = new ReflectionClass($class_name);
         $method = $reflection->getMethod($func_name);
 
@@ -29,12 +36,12 @@ class TokenAuthFilter implements AuthFilter {
                 return $attribute->newInstance()->value;
             }
         }
-        throw new AttributeNotFoundException("RequireAuthority", $class_name, $func_name, LogLevel::ERROR);
+        return ["PermitAll"];
     }
 
     private function token_verify(string $token): string {
         // TODO token校验
-        return "Admin";
+        return "User";
     }
 
     public function do_after_accept(): void {}

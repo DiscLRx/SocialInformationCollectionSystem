@@ -180,7 +180,7 @@ final class Core {
 
         //权限验证
         $headers = getallheaders();
-        $token = $headers['token'] ?? null;
+        $token = $headers['Token'] ?? null;
         if (!$this->security($token, $controller_class, $func_name)) {
             return Response::permission_denied();
         }
