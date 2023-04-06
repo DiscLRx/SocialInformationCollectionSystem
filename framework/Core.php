@@ -42,7 +42,7 @@ final class Core {
      */
     function run(string $app_env_config): void {
         try {
-            $this->php_basic_setting($app_env_config);
+            $this->basic_setting($app_env_config);
 
             $res_body = $this->route();
             if ($res_body !== null) {
@@ -89,7 +89,7 @@ final class Core {
         }
     }
 
-    private function php_basic_setting($app_env_config): void {
+    private function basic_setting($app_env_config): void {
         set_error_handler(function ($err_code, $err_str, $err_file, $err_line) {
             throw new ErrorException($err_code, $err_str, $err_file, $err_line);
         }, E_ERROR | E_WARNING);
