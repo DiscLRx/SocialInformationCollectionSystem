@@ -56,7 +56,7 @@ final class Core {
     private function handle_exception(Exception|Error $e): void {
         try {
             $this->exec_exception_handler($e);
-        } catch (LoggerException $e){
+        } catch (LoggerException $e) {
             $e->log_trace();
             Response::http500();
         } catch (Exception|Error $e) {
@@ -96,7 +96,12 @@ final class Core {
         try {
             $this->load_app_config($app_env_config);
         } catch (Exception|Error $e) {
-            throw new LoadConfigException($e->getMessage());
+            if ($e instanceof LoggerException) {
+                throw $e;
+            }
+            $le = new LoadConfigException("无法解析配置文件 \"{$app_env_config}\"");
+            $le->set_causeby_exception($e);
+            throw $le;
         }
         spl_autoload_register(function ($class_name) {
             $file = null;
@@ -109,10 +114,10 @@ final class Core {
                     $file = $mapper->path;
                 }
             }
-            if ($match===false){
+            if ($match === false) {
                 throw new ClassNotFoundException($class_name);
             }
-            if ($file===null) {
+            if ($file === null) {
                 throw new FileNotFoundException($file);
             }
             if (!file_exists($file)) {
@@ -241,7 +246,7 @@ final class Core {
             return true;
         }
         $auth_filter = new $auth_filter_name();
-        if (!$auth_filter instanceof AuthFilter){
+        if (!$auth_filter instanceof AuthFilter) {
             throw new InterfaceNotImplementException(AuthFilter::class, $auth_filter_name, LogLevel::ERROR);
         }
         $filter_ret = $auth_filter->do_filter($token, $controller_class, $func_name);
