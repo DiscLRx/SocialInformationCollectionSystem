@@ -38,6 +38,7 @@ CREATE TABLE `questionnaire` (
     `title`         varchar(45) NOT NULL,
     `begin_date`    bigint(20) NOT NULL,
     `end_date`      bigint(20) NOT NULL,
+    `enable`        tinyint(4) NOT NULL DEFAULT '1',
     PRIMARY KEY (`id`),
     KEY `user_id_idx` (`user_id`),
     CONSTRAINT `fk_questionnaire_user` 
