@@ -10,6 +10,7 @@ class AppEnv {
      * @var string  类名对应文件路径映射配置文件
      */
     public static string $class_path_mapper = "";
+    public static string $database_config_file = "";
     /**
      * @var string  日志文件名称
      */

@@ -32,7 +32,9 @@ require_once 'framework/exception/AttributeNotFoundException.php';
 require_once 'framework/exception/FileNotFoundException.php';
 require_once 'framework/exception/InterfaceNotImplementException.php';
 require_once 'framework/exception/ErrorException.php';
+require_once 'framework/exception/DatabaseException.php';
 require_once 'framework/exception/FormatUtil.php';
+require_once 'framework/PDOExecutor.php';
 
 final class Core {
 
