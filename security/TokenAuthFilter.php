@@ -16,7 +16,7 @@ class TokenAuthFilter implements AuthFilter {
         if (in_array("PermitAll", $require_auths)){
             return true;
         }
-        if ($token === null) {
+        if (!isset($token)) {
             return false;
         }
         $user_auth = $this->token_verify($token);

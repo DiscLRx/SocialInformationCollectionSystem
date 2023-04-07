@@ -7,27 +7,27 @@ require_once 'ResponseDataModel.php';
 
 class Response {
 
-    public static function http404() {
+    public static function http404(): null {
         http_response_code(404);
-        return NULL;
+        return null;
     }
 
-    public static function http405() {
+    public static function http405(): null {
         http_response_code(405);
-        return NULL;
+        return null;
     }
 
-    public static function http500() {
+    public static function http500(): null {
         http_response_code(500);
-        return NULL;
+        return null;
     }
 
-    public static function success($data = NULL): ResponseModel {
+    public static function success($data = null): ResponseModel {
         http_response_code(200);
-        if ($data == NULL) {
-            $response_result = new ResponseModel(0);
-        } else {
+        if (isset($data)) {
             $response_result = new ResponseDataModel(0, $data);
+        } else {
+            $response_result = new ResponseModel(0);
         }
         return $response_result;
     }

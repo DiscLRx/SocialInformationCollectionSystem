@@ -44,7 +44,7 @@ class LoggerException extends RuntimeException {
 
     public function log_trace() {
         $this->log_self_trace();
-        if ($this->cause_by_exception !== null) {
+        if (isset($this->cause_by_exception)) {
             $this->log_causeby_exception_trace();
         }
     }

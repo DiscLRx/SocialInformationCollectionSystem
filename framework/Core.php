@@ -45,7 +45,7 @@ final class Core {
             $this->basic_setting($app_env_config);
 
             $res_body = $this->route();
-            if ($res_body !== null) {
+            if (isset($res_body)) {
                 echo json_encode($res_body);
             }
         } catch (Exception|Error $e) {
@@ -117,7 +117,7 @@ final class Core {
             if ($match === false) {
                 throw new ClassNotFoundException($class_name);
             }
-            if ($file === null) {
+            if (!isset($file)) {
                 throw new FileNotFoundException($file);
             }
             if (!file_exists($file)) {
@@ -134,7 +134,7 @@ final class Core {
         $json = file_get_contents($app_env_config);
 
         $json_obj = json_decode($json);
-        if ($json_obj === null) {
+        if (!isset($json_obj)) {
             throw new LoadConfigException("无法解析配置文件{$app_env_config}");
         }
         $json_props = (new ReflectionObject($json_obj))->getProperties();

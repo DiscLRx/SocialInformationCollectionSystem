@@ -25,7 +25,7 @@ class Log {
 
     public static function multiline(array $items, int $pre_space = 8, ?callable $foreach_handler = null): void {
         foreach ($items as $index => $item) {
-            $line = $foreach_handler === null ?  $item : $foreach_handler($index, $item);
+            $line = isset($foreach_handler) ? $foreach_handler($index, $item) : $item;
             Log::nextline($line, $pre_space);
         }
     }

@@ -4,7 +4,7 @@ namespace framework;
 
 interface AuthFilter {
     /**
-     * @param string|NULL $token 身份验证令牌
+     * @param string|null $token 身份验证令牌
      * @param string $class_name
      * @param string $func_name 要执行的controller方法名称
      * @return bool true for accept, false for denied
