@@ -15,14 +15,14 @@ interface UserDao {
      * 查询所有用户
      * @return array    包含User对象的array
      */
-    public function select_all_user(): array;
+    public function select(): array;
 
     /**
      * 根据用户id查询用户
      * @param int $id   用户id
      * @return User     User对象
      */
-    public function select_user_by_id(int $id): User;
+    public function select_by_id(int $id): User;
 
     /**
      * 新增用户
@@ -33,7 +33,7 @@ interface UserDao {
      * @param string $authority 权限
      * @return int              受影响的行数
      */
-    public function insert_user(string $username, string $password, string $nickname, string $phone, string $authority): int;
+    public function insert(string $username, string $password, string $nickname, string $phone, string $authority): int;
 
     /**
      * 更新用户信息
@@ -46,7 +46,7 @@ interface UserDao {
      * @param bool $enable      可用性
      * @return int              受影响的行数
      */
-    public function update_user(int $id, string $username, string $password, string $nickname, string $phone, string $authority, bool $enable): int;
+    public function update_by_id(int $id, string $username, string $password, string $nickname, string $phone, string $authority, bool $enable): int;
 
     /**
      * 更新用户的可用性
@@ -54,6 +54,6 @@ interface UserDao {
      * @param bool $enable  可用性
      * @return int          受影响的行数
      */
-    public function update_user_enable(int $id, bool $enable): int;
+    public function update_enable_by_id(int $id, bool $enable): int;
 
 }

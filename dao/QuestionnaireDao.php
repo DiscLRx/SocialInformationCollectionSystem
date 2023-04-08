@@ -14,14 +14,14 @@ interface QuestionnaireDao {
      * 查询所有问卷
      * @return array    包含Questionnaire对象的array
      */
-    public function select_all_questionnaire(): array;
+    public function select(): array;
 
     /**
      * 根据问卷id查询问卷
      * @param int $id           问卷id
      * @return Questionnaire    查询到的Questionnaire对象
      */
-    public function select_questionnaire(int $id): Questionnaire;
+    public function select_by_id(int $id): Questionnaire;
 
     /**
      * 新增问卷
@@ -31,7 +31,7 @@ interface QuestionnaireDao {
      * @param int $end_date     结束时间
      * @return int              受影响的行数
      */
-    public function insert_questionnaire(int $user_id, string $title, int $begin_date, int $end_date): int;
+    public function insert(int $user_id, string $title, int $begin_date, int $end_date): int;
 
     /**
      * 更新问卷信息
@@ -43,7 +43,7 @@ interface QuestionnaireDao {
      * @param bool $enable      可用性
      * @return int              受影响的行数
      */
-    public function update_questionnaire(int $id, int $user_id, string $title, int $begin_date, int $end_date, bool $enable): int;
+    public function update_by_id(int $id, int $user_id, string $title, int $begin_date, int $end_date, bool $enable): int;
 
     /**
      * 更新问卷的可用性
@@ -51,5 +51,5 @@ interface QuestionnaireDao {
      * @param bool $enable  可用性
      * @return int          受影响的行数
      */
-    public function update_questionnaire_enable(int $id, bool $enable): int;
+    public function update_enable_by_id(int $id, bool $enable): int;
 }
