@@ -45,35 +45,35 @@ final class Core {
     function run(string $app_env_config): void {
         try {
             $this->basic_setting($app_env_config);
-
             $res_body = $this->route();
+        } catch (Exception|Error $e) {
+            $res_body = $this->handle_exception($e);
+        } finally {
             if (isset($res_body)) {
                 echo json_encode($res_body);
             }
-        } catch (Exception|Error $e) {
-            $this->handle_exception($e);
         }
     }
 
-    private function handle_exception(Exception|Error $e): void {
+    private function handle_exception(Exception|Error $e): ?ResponseModel {
         try {
-            $this->exec_exception_handler($e);
+            return $this->exec_exception_handler($e);
         } catch (LoggerException $e) {
             $e->log_trace();
-            Response::unknown_error();
+            return Response::unknown_error();
         } catch (Exception|Error $e) {
             Log::fatal($e->getMessage());
             Log::multiline($e->getTrace(), foreach_handler: function ($index, $item) {
                 return FormatUtil::trace_line($index, $item);
             });
-            Response::unknown_error();
+            return Response::unknown_error();
         }
     }
 
     /**
      * @throws Exception 未定义异常处理器或异常处理器无法处理异常时抛出
      */
-    private function exec_exception_handler(Exception|Error $e): void {
+    private function exec_exception_handler(Exception|Error $e): ?ResponseModel {
         $exception_handler_name = AppEnv::$exception_handler_impl;
         if ($exception_handler_name === "") {
             throw $e;
@@ -83,7 +83,7 @@ final class Core {
                 if (!$handler instanceof ExceptionHandler) {
                     throw new InterfaceNotImplementException(ExceptionHandler::class, $handler, LogLevel::ERROR);
                 }
-                $handler->handle($e);
+                return $handler->handle($e);
             } catch (InterfaceNotImplementException $ie) {
                 $ie->log_trace();
                 throw $e;
