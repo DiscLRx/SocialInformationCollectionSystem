@@ -10,11 +10,6 @@ require_once 'entity/Question.php';
  *数据库表Question接口
  */
 interface  QuestionDao{
-    /**
-     * 查询所有问题
-     * @return array    包含Question对象的array
-     */
-    public function select(): array;
 
     /**
      * 根据问题id查询问题

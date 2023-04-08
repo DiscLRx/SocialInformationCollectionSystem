@@ -12,12 +12,6 @@ require_once 'entity/Option.php';
 interface OptionDao {
 
     /**
-     * 查询所有选项
-     * @return array    包含Option对象的array
-     */
-    public function select(): array;
-
-    /**
      * 根据选项id查询选项
      * @param int $id   选项id
      * @return Option   Option对象

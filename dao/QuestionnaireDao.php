@@ -10,11 +10,6 @@ require_once 'entity/Questionnaire.php';
  *数据库表questionnaire接口
  */
 interface QuestionnaireDao {
-    /**
-     * 查询所有问卷
-     * @return array    包含Questionnaire对象的array
-     */
-    public function select(): array;
 
     /**
      * 根据问卷id查询问卷
@@ -22,6 +17,13 @@ interface QuestionnaireDao {
      * @return Questionnaire    查询到的Questionnaire对象
      */
     public function select_by_id(int $id): Questionnaire;
+
+    /**
+     * 根据用户id查询问卷
+     * @param int $user_id  用户id
+     * @return array        包含Questionnaire对象的array
+     */
+    public function select_by_userid(int $user_id): array;
 
     /**
      * 新增问卷
