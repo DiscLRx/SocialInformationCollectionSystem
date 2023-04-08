@@ -20,10 +20,10 @@ interface OptionDao {
 
     /**
      * 根据问题id查询选项
-     * @param int $id   问题id
-     * @return array    包含Option对象的array
+     * @param int $question_id  问题id
+     * @return array            包含Option对象的array
      */
-    public function select_by_questionid(int $id): array;
+    public function select_by_questionid(int $question_id): array;
 
     /**
      * 新增选项
