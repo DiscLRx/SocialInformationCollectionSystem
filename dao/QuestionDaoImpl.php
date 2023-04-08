@@ -34,7 +34,7 @@ class QuestionDaoImpl extends PDOExecutor implements QuestionDao {
         $stmt = $this->db->prepare('SELECT * FROM question WHERE questionnaire_id=:questionnaire_id');
         $stmt->bindParam('questionnaire_id', $questionnaire_id, PDO::PARAM_INT);
         $stmt->execute();
-        $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
             return new Question(
                 $item['id'],

@@ -35,7 +35,7 @@ class QuestionnaireDaoImpl extends PDOExecutor implements QuestionnaireDao {
         $stmt = $this->db->prepare('SELECT * FROM questionnaire WHERE user_id=:user_id');
         $stmt->bindParam('user_id', $user_id);
         $stmt->execute();
-        $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
             return new Questionnaire(
                 $item['id'],
