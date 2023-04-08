@@ -23,19 +23,24 @@ class Response {
     }
 
     public static function success($data = null): ResponseModel {
+        return self::set_response(0, $data);
+    }
+
+    public static function permission_denied($data = null): ResponseModel {
+        return self::set_response(1, $data);
+    }
+
+    public static function invalid_argument($data = null): ResponseModel {
+        return self::set_response(2, $data);
+    }
+
+    private static function set_response(int $code, $data = null): ResponseModel {
         http_response_code(200);
         if (isset($data)) {
-            $response_result = new ResponseDataModel(0, $data);
+            return new ResponseDataModel($code, $data);
         } else {
-            $response_result = new ResponseModel(0);
+            return new ResponseModel($code);
         }
-        return $response_result;
     }
-
-    public static function permission_denied(): ResponseModel {
-        http_response_code(200);
-        return new ResponseModel(1);
-    }
-
 
 }
