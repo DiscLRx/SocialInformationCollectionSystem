@@ -14,7 +14,10 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         parent::__construct();
     }
 
-    public function select_all_user(): array {
+    /**
+     * @inheritDoc
+     */
+    public function select(): array {
         $stmt = $this->db->query('SELECT * FROM user');
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
@@ -30,7 +33,10 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         }, $fetch_ret);
     }
 
-    public function select_user_by_id(int $id): User {
+    /**
+     * @inheritDoc
+     */
+    public function select_by_id(int $id): User {
         $stmt = $this->db->prepare('SELECT * FROM user WHERE id=:id');
         $stmt->bindParam('id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -46,7 +52,10 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         );
     }
 
-    public function insert_user(string $username, string $password, string $nickname, string $phone, string $authority): int {
+    /**
+     * @inheritDoc
+     */
+    public function insert(string $username, string $password, string $nickname, string $phone, string $authority): int {
         $stmt = $this->db->prepare(
             'INSERT INTO user(username, password, nickname, phone, authority) VALUES (:username, :password, :nickname, :phone, :authority)'
         );
@@ -59,7 +68,10 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         return $stmt->rowCount();
     }
 
-    public function update_user(int $id, string $username, string $password, string $nickname, string $phone, string $authority, bool $enable): int {
+    /**
+     * @inheritDoc
+     */
+    public function update_by_id(int $id, string $username, string $password, string $nickname, string $phone, string $authority, bool $enable): int {
         $stmt = $this->db->prepare(
             'UPDATE user SET username=:username, password=:password, nickname=:nickname, phone=:phone, authority=:authority, enable=:enable WHERE id=:id'
         );
@@ -74,7 +86,10 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         return $stmt->rowCount();
     }
 
-    public function update_user_enable(int $id, bool $enable): int {
+    /**
+     * @inheritDoc
+     */
+    public function update_enable_by_id(int $id, bool $enable): int {
         $stmt = $this->db->prepare('UPDATE user SET enable=:enable WHERE id=:id');
         $stmt->bindParam('enable', $enable, PDO::PARAM_BOOL);
         $stmt->bindParam('id', $id, PDO::PARAM_INT);
