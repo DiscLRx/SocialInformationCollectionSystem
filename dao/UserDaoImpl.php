@@ -36,11 +36,14 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
     /**
      * @inheritDoc
      */
-    public function select_by_id(int $id): User {
+    public function select_by_id(int $id): ?User {
         $stmt = $this->db->prepare('SELECT * FROM user WHERE id=:id');
         $stmt->bindParam('id', $id, PDO::PARAM_INT);
         $stmt->execute();
         $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($fetch_ret === false) {
+            return null;
+        }
         return new User(
             $fetch_ret['id'],
             $fetch_ret['username'],
@@ -52,11 +55,17 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         );
     }
 
-    public function select_by_username(int $username): User {
+    /**
+     * @inheritDoc
+     */
+    public function select_by_username(string $username): ?User {
         $stmt = $this->db->prepare('SELECT * FROM user WHERE username=:username');
-        $stmt->bindParam('username', $username, PDO::PARAM_INT);
+        $stmt->bindParam('username', $username);
         $stmt->execute();
         $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($fetch_ret === false) {
+            return null;
+        }
         return new User(
             $fetch_ret['id'],
             $fetch_ret['username'],
@@ -91,13 +100,13 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         $stmt = $this->db->prepare(
             'UPDATE user SET username=:username, password=:password, nickname=:nickname, phone=:phone, authority=:authority, enable=:enable WHERE id=:id'
         );
-        $stmt->bindParam('id', $id, PDO::PARAM_INT);
         $stmt->bindParam('username', $username);
         $stmt->bindParam('password', $password);
         $stmt->bindParam('nickname', $nickname);
         $stmt->bindParam('phone', $phone);
         $stmt->bindParam('authority', $authority);
         $stmt->bindParam('enable', $enable, PDO::PARAM_BOOL);
+        $stmt->bindParam('id', $id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->rowCount();
     }

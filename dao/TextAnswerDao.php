@@ -15,9 +15,9 @@ interface TextAnswerDao {
      * 根据问题id和用户id查询填空题作答记录
      * @param int $question_id  问题id
      * @param int $user_id      用户id
-     * @return TextAnswer       TextAnswer对象
+     * @return ?TextAnswer      TextAnswer对象
      */
-    public function select_by_questionid_userid(int $question_id, int $user_id): TextAnswer;
+    public function select_by_questionid_userid(int $question_id, int $user_id): ?TextAnswer;
 
     /**
      * 根据问题id查询填空题作答记录

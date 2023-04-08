@@ -13,11 +13,14 @@ class QuestionDaoImpl extends PDOExecutor implements QuestionDao {
     /**
      * @inheritDoc
      */
-    public function select_by_id(int $id): Question {
+    public function select_by_id(int $id): ?Question {
         $stmt = $this->db->prepare('SELECT * FROM question WHERE id=:id');
         $stmt->bindParam('id', $id, PDO::PARAM_INT);
         $stmt->execute();
         $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($fetch_ret === false) {
+            return null;
+        }
         return new Question(
             $fetch_ret['id'],
             $fetch_ret['questionnaire_id'],
@@ -53,8 +56,8 @@ class QuestionDaoImpl extends PDOExecutor implements QuestionDao {
         $stmt = $this->db->prepare(
             'INSERT INTO question(questionnaire_id, `order`, type, content) VALUES (:questionnaire_id, :order, :type, :content)'
         );
-        $stmt->bindParam('questionnaire_id', $questionnaire_id);
-        $stmt->bindParam('order', $order);
+        $stmt->bindParam('questionnaire_id', $questionnaire_id, PDO::PARAM_INT);
+        $stmt->bindParam('order', $order, PDO::PARAM_INT);
         $stmt->bindParam('type', $type);
         $stmt->bindParam('content', $content);
         $stmt->execute();
@@ -68,11 +71,11 @@ class QuestionDaoImpl extends PDOExecutor implements QuestionDao {
         $stmt = $this->db->prepare(
             'UPDATE question SET questionnaire_id=:questionnaire_id, `order`=:order, type=:type, content=:content WHERE id=:id'
         );
-        $stmt->bindParam('questionnaire_id', $questionnaire_id);
-        $stmt->bindParam('order', $order);
+        $stmt->bindParam('questionnaire_id', $questionnaire_id, PDO::PARAM_INT);
+        $stmt->bindParam('order', $order, PDO::PARAM_INT);
         $stmt->bindParam('type', $type);
         $stmt->bindParam('content', $content);
-        $stmt->bindParam('id', $id);
+        $stmt->bindParam('id', $id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->rowCount();
     }

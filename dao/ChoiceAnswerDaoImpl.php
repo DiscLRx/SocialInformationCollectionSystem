@@ -18,7 +18,7 @@ class ChoiceAnswerDaoImpl extends PDOExecutor implements ChoiceAnswerDao {
         $stmt = $this->db->prepare(
             'SELECT user.* FROM user, choice_answer WHERE choice_answer.option_id=:option_id AND user.id=choice_answer.user_id'
         );
-        $stmt->bindParam('option_id', $option_id);
+        $stmt->bindParam('option_id', $option_id, PDO::PARAM_INT);
         $stmt->execute();
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
@@ -41,7 +41,7 @@ class ChoiceAnswerDaoImpl extends PDOExecutor implements ChoiceAnswerDao {
         $stmt = $this->db->prepare(
             'SELECT `option`.* FROM `option`, choice_answer WHERE choice_answer.user_id=:user_id AND `option`.id=choice_answer.option_id'
         );
-        $stmt->bindParam('user_id', $user_id);
+        $stmt->bindParam('user_id', $user_id, PDO::PARAM_INT);
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
             return new Option(
@@ -60,8 +60,8 @@ class ChoiceAnswerDaoImpl extends PDOExecutor implements ChoiceAnswerDao {
         $stmt = $this->db->prepare(
             'INSERT INTO choice_answer(option_id, user_id) VALUES (:option_id, :user_id)'
         );
-        $stmt->bindParam('option_id', $option_id);
-        $stmt->bindParam('user_id', $user_id);
+        $stmt->bindParam('option_id', $option_id, PDO::PARAM_INT);
+        $stmt->bindParam('user_id', $user_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->rowCount();
     }

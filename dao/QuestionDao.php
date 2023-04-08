@@ -14,9 +14,9 @@ interface  QuestionDao{
     /**
      * 根据问题id查询问题
      * @param int $id       问题id
-     * @return Question     Question对象
+     * @return ?Question    Question对象
      */
-    public function select_by_id(int $id): Question;
+    public function select_by_id(int $id): ?Question;
 
     /**
      * 根据问卷id查询问题

@@ -13,11 +13,14 @@ class QuestionnaireDaoImpl extends PDOExecutor implements QuestionnaireDao {
     /**
      * @inheritDoc
      */
-    public function select_by_id(int $id): Questionnaire {
+    public function select_by_id(int $id): ?Questionnaire {
         $stmt = $this->db->prepare('SELECT * FROM questionnaire WHERE id=:id');
-        $stmt->bindParam('id', $id);
+        $stmt->bindParam('id', $id, PDO::PARAM_INT);
         $stmt->execute();
         $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($fetch_ret === false) {
+            return null;
+        }
         return new Questionnaire(
             $fetch_ret['id'],
             $fetch_ret['user_id'],
@@ -33,7 +36,7 @@ class QuestionnaireDaoImpl extends PDOExecutor implements QuestionnaireDao {
      */
     public function select_by_userid(int $user_id): array {
         $stmt = $this->db->prepare('SELECT * FROM questionnaire WHERE user_id=:user_id');
-        $stmt->bindParam('user_id', $user_id);
+        $stmt->bindParam('user_id', $user_id, PDO::PARAM_INT);
         $stmt->execute();
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {

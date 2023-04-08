@@ -14,9 +14,9 @@ interface OptionDao {
     /**
      * 根据选项id查询选项
      * @param int $id   选项id
-     * @return Option   Option对象
+     * @return ?Option  Option对象
      */
-    public function select_by_id(int $id): Option;
+    public function select_by_id(int $id): ?Option;
 
     /**
      * 根据问题id查询选项

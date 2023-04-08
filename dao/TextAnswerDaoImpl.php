@@ -13,7 +13,7 @@ class TextAnswerDaoImpl extends PDOExecutor implements TextAnswerDao {
     /**
      * @inheritDoc
      */
-    public function select_by_questionid_userid(int $question_id, int $user_id): TextAnswer {
+    public function select_by_questionid_userid(int $question_id, int $user_id): ?TextAnswer {
         $stmt = $this->db->prepare(
             'SELECT * FROM text_answer WHERE question_id=:question_id AND user_id=:user_id'
         );
@@ -21,6 +21,9 @@ class TextAnswerDaoImpl extends PDOExecutor implements TextAnswerDao {
         $stmt->bindParam('user_id', $user_id);
         $stmt->execute();
         $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($fetch_ret === false) {
+            return null;
+        }
         return new TextAnswer(
             $fetch_ret['question_id'],
             $fetch_ret['user_id'],
@@ -35,7 +38,7 @@ class TextAnswerDaoImpl extends PDOExecutor implements TextAnswerDao {
         $stmt = $this->db->prepare(
             'SELECT * FROM text_answer WHERE question_id=:question_id'
         );
-        $stmt->bindParam('question_id', $question_id);
+        $stmt->bindParam('question_id', $question_id, PDO::PARAM_INT);
         $stmt->execute();
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
@@ -54,7 +57,7 @@ class TextAnswerDaoImpl extends PDOExecutor implements TextAnswerDao {
         $stmt = $this->db->prepare(
             'SELECT * FROM text_answer WHERE user_id=:user_id'
         );
-        $stmt->bindParam('user_id', $user_id);
+        $stmt->bindParam('user_id', $user_id, PDO::PARAM_INT);
         $stmt->execute();
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
@@ -73,8 +76,8 @@ class TextAnswerDaoImpl extends PDOExecutor implements TextAnswerDao {
         $stmt = $this->db->prepare(
             'INSERT INTO text_answer(question_id, user_id, text) VALUES (:question_id, :user_id, :text)'
         );
-        $stmt->bindParam('question_id', $question_id);
-        $stmt->bindParam('user_id', $user_id);
+        $stmt->bindParam('question_id', $question_id, PDO::PARAM_INT);
+        $stmt->bindParam('user_id', $user_id, PDO::PARAM_INT);
         $stmt->bindParam('text', $text);
         $stmt->execute();
         return $stmt->rowCount();

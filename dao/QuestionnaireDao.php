@@ -14,9 +14,9 @@ interface QuestionnaireDao {
     /**
      * 根据问卷id查询问卷
      * @param int $id           问卷id
-     * @return Questionnaire    查询到的Questionnaire对象
+     * @return ?Questionnaire   查询到的Questionnaire对象
      */
-    public function select_by_id(int $id): Questionnaire;
+    public function select_by_id(int $id): ?Questionnaire;
 
     /**
      * 根据用户id查询问卷

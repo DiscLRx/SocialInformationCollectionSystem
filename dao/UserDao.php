@@ -20,16 +20,16 @@ interface UserDao {
     /**
      * 根据用户id查询用户
      * @param int $id   用户id
-     * @return User     User对象
+     * @return ?User    User对象
      */
-    public function select_by_id(int $id): User;
+    public function select_by_id(int $id): ?User;
 
     /**
      * 根据用户名查询用户
-     * @param int $username 用户名
-     * @return User         User对象
+     * @param string $username  用户名
+     * @return ?User            User对象
      */
-    public function select_by_username(int $username): User;
+    public function select_by_username(string $username): ?User;
 
     /**
      * 新增用户
