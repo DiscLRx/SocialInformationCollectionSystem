@@ -25,8 +25,7 @@ CREATE TABLE `user`
     `authority` varchar(20)  NOT NULL DEFAULT 'User',
     `enable`    tinyint(4)   NOT NULL DEFAULT '1',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `username_UNIQUE` (`username`),
-    UNIQUE KEY `phone_UNIQUE` (`phone`)
+    UNIQUE KEY `username_UNIQUE` (`username`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 ```
