@@ -1,27 +1,27 @@
 [
   {
-    "name": "user\\QuestionnnairesController",
-    "path": "controller/user/QuestionnnairesController.php"
+    "name": "user\\QuestionnnaireAnswerController",
+    "path": "controller/user/QuestionnnaireAnswerController.php"
   },
   {
-    "name": "user\\UsersController",
-    "path": "controller/user/UsersController.php"
+    "name": "user\\QuestionnnaireManageController",
+    "path": "controller/user/QuestionnnaireManageController.php"
+  },
+  {
+    "name": "user\\UserController",
+    "path": "controller/user/UserController.php"
   },
   {
     "name": "admin\\AdminController",
     "path": "controller/admin/AdminController.php"
   },
   {
-    "name": "admin\\UsersController",
-    "path": "controller/admin/UsersController.php"
+    "name": "admin\\UserController",
+    "path": "controller/admin/UserController.php"
   },
   {
     "name": "admin\\QuestionnnairesController",
     "path": "controller/admin/QuestionnnairesController.php"
-  },
-  {
-    "name": "visitor\\QuestionnnairesController",
-    "path": "controller/visitor/QuestionnnairesController.php"
   },
   {
     "name": "security\\TokenAuthFilter",

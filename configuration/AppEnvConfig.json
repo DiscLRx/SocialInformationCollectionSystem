@@ -6,11 +6,11 @@
   "auth_filter_impl": "security\\TokenAuthFilter",
   "exception_handler_impl": "exception\\ExceptionHandlerImpl",
   "controller_classes": [
-    "user\\QuestionnnairesController",
-    "user\\UsersController",
+    "user\\QuestionnnaireManageController",
+    "user\\QuestionnnaireAnswerController",
+    "user\\UserController",
     "admin\\AdminController",
-    "admin\\UsersController",
-    "admin\\QuestionnnairesController",
-    "visitor\\QuestionnnairesController"
+    "admin\\UserController",
+    "admin\\QuestionnnairesController"
   ]
 }
