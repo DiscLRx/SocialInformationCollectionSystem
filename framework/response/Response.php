@@ -34,6 +34,10 @@ class Response {
         return self::set_response(2, $data);
     }
 
+    public static function unknown_error($data = null): ResponseModel {
+        return self::set_response(5, $data);
+    }
+
     private static function set_response(int $code, $data = null): ResponseModel {
         http_response_code(200);
         if (isset($data)) {
