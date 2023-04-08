@@ -52,6 +52,22 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         );
     }
 
+    public function select_by_username(int $username): User {
+        $stmt = $this->db->prepare('SELECT * FROM user WHERE username=:username');
+        $stmt->bindParam('username', $username, PDO::PARAM_INT);
+        $stmt->execute();
+        $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        return new User(
+            $fetch_ret['id'],
+            $fetch_ret['username'],
+            $fetch_ret['password'],
+            $fetch_ret['nickname'],
+            $fetch_ret['phone'],
+            $fetch_ret['authority'],
+            $fetch_ret['enable']
+        );
+    }
+
     /**
      * @inheritDoc
      */
@@ -96,4 +112,5 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         $stmt->execute();
         return $stmt->rowCount();
     }
+
 }

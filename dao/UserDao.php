@@ -25,6 +25,13 @@ interface UserDao {
     public function select_by_id(int $id): User;
 
     /**
+     * 根据用户名查询用户
+     * @param int $username 用户名
+     * @return User         User对象
+     */
+    public function select_by_username(int $username): User;
+
+    /**
      * 新增用户
      * @param string $username  用户名
      * @param string $password  密码
