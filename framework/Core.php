@@ -60,13 +60,13 @@ final class Core {
             $this->exec_exception_handler($e);
         } catch (LoggerException $e) {
             $e->log_trace();
-            Response::http500();
+            Response::unknown_error();
         } catch (Exception|Error $e) {
             Log::fatal($e->getMessage());
             Log::multiline($e->getTrace(), foreach_handler: function ($index, $item) {
                 return FormatUtil::trace_line($index, $item);
             });
-            Response::http500();
+            Response::unknown_error();
         }
     }
 
