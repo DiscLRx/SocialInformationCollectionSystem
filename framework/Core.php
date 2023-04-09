@@ -9,12 +9,14 @@ use framework\exception\ErrorException;
 use framework\exception\FileNotFoundException;
 use framework\exception\FormatUtil;
 use framework\exception\InterfaceNotImplementException;
+use framework\exception\JSONSerializeException;
 use framework\exception\LoadConfigException;
 use framework\exception\LoggerException;
 use framework\log\Log;
 use framework\log\LogLevel;
 use framework\response\Response;
 use framework\response\ResponseModel;
+use framework\util\JSON;
 use ReflectionClass;
 use ReflectionObject;
 
@@ -34,6 +36,8 @@ require_once 'framework/exception/InterfaceNotImplementException.php';
 require_once 'framework/exception/ErrorException.php';
 require_once 'framework/exception/DatabaseException.php';
 require_once 'framework/exception/FormatUtil.php';
+require_once 'framework/exception/JSONSerializeException.php';
+require_once 'framework/util/JSON.php';
 require_once 'framework/PDOExecutor.php';
 
 final class Core {
@@ -48,11 +52,20 @@ final class Core {
             $res_body = $this->route();
         } catch (Exception|Error $e) {
             $res_body = $this->handle_exception($e);
-        } finally {
-            if (isset($res_body)) {
-                echo json_encode($res_body);
-            }
         }
+        try {
+            if (isset($res_body)) {
+                echo JSON::serialize($res_body);
+            }
+        } catch (JSONSerializeException $e) {
+            $e->log_trace();
+        } catch (Exception|Error $e) {
+            $le = new LoggerException();
+            $le->set_causeby_exception($e);
+            $le->log_trace();
+            echo json_encode(Response::unknown_error());
+        }
+
     }
 
     private function handle_exception(Exception|Error $e): ?ResponseModel {
