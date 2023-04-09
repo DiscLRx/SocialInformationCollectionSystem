@@ -7,17 +7,17 @@ require_once 'ResponseDataModel.php';
 
 class Response {
 
-    public static function http404(): null {
+    public static function http404() {
         http_response_code(404);
         return null;
     }
 
-    public static function http405(): null {
+    public static function http405() {
         http_response_code(405);
         return null;
     }
 
-    public static function http500(): null {
+    public static function http500() {
         http_response_code(500);
         return null;
     }
