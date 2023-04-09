@@ -6,6 +6,7 @@ use Error;
 use Exception;
 use framework\log\Log;
 use framework\log\LogLevel;
+use framework\util\FormatUtil;
 use RuntimeException;
 
 class LoggerException extends RuntimeException {

@@ -1,6 +1,6 @@
 <?php
 
-namespace framework\exception;
+namespace framework\util;
 
 class FormatUtil {
     public static function trace_line(int $index, array $item): string {
