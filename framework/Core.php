@@ -41,6 +41,7 @@ require_once 'framework/exception/JSONSerializeException.php';
 require_once 'framework/util/JSON.php';
 require_once 'framework/PDOExecutor.php';
 require_once 'framework/util/JWT.php';
+require_once 'framework/util/Time.php';
 
 final class Core {
 

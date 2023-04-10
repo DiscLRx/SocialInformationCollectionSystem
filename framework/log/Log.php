@@ -3,12 +3,13 @@
 namespace framework\log;
 
 use framework\AppEnv;
+use framework\util\Time;
 
 class Log {
 
     public static function log(LogLevel $level, string $msg): void {
-        $ts = explode(' ',microtime());
-        $date = date('[Y-m-d H:i:s.', $ts[1]) . str_pad((int)(floatval($ts[0])*1000), 3, '0') . ']';
+        $ts = Time::current_time_millis();
+        $date = date('[Y-m-d H:i:s.', intval($ts / 1000)) . $ts % 1000 . ']';
         $data = $date . '[' . str_pad($level->name, 5) . '] ' . $msg . "\n";
         $f = fopen(AppEnv::$log_file, 'a');
         fwrite($f, $data);
@@ -55,7 +56,7 @@ class Log {
     public static function warn(string $msg): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
-                "debug", "info", "warn"  => false,
+                "debug", "info", "warn" => false,
                 default => true
             }) {
             return;
