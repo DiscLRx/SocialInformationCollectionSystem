@@ -20,6 +20,7 @@ use framework\util\JSON;
 use ReflectionClass;
 use ReflectionObject;
 
+require_once 'vendor/autoload.php';
 require_once 'framework/response/Response.php';
 require_once 'framework/AppEnv.php';
 require_once 'framework/AuthFilter.php';
@@ -39,6 +40,7 @@ require_once 'framework/util/FormatUtil.php';
 require_once 'framework/exception/JSONSerializeException.php';
 require_once 'framework/util/JSON.php';
 require_once 'framework/PDOExecutor.php';
+require_once 'framework/util/JWT.php';
 
 final class Core {
 

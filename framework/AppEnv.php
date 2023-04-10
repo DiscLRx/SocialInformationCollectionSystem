@@ -11,6 +11,7 @@ class AppEnv {
      */
     public static string $class_path_mapper = "";
     public static string $database_config_file = "";
+    public static string $jwt_key = "";
     /**
      * @var string  日志文件名称
      */
