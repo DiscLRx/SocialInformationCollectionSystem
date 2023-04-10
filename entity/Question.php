@@ -8,9 +8,9 @@ class Question {
     private int $order;
     private string $type;
     private string $content;
-    private array $option_arr;
+    private ?array $option_arr;
 
-    public function __construct(int $id, int $questionnaire_id, int $order, string $type, string $content, array $option_arr = []) {
+    public function __construct(int $id, int $questionnaire_id, int $order, string $type, string $content, ?array $option_arr = null) {
         $this->id = $id;
         $this->questionnaire_id = $questionnaire_id;
         $this->order = $order;
@@ -59,11 +59,11 @@ class Question {
         $this->content = $content;
     }
 
-    public function get_option_arr(): array {
+    public function get_option_arr(): ?array {
         return $this->option_arr;
     }
 
-    public function set_option_arr(array $option_arr): void {
+    public function set_option_arr(?array $option_arr): void {
         $this->option_arr = $option_arr;
     }
 

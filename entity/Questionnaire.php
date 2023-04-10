@@ -9,9 +9,9 @@ class Questionnaire {
     private int $begin_date;
     private int $end_date;
     private bool $enable;
-    private array $question_arr;
+    private ?array $question_arr;
 
-    public function __construct(int $id, int $user_id, string $title, int $begin_date, int $end_date, bool $enable, array $question_arr = []) {
+    public function __construct(int $id, int $user_id, string $title, int $begin_date, int $end_date, bool $enable, ?array $question_arr = null) {
         $this->id = $id;
         $this->user_id = $user_id;
         $this->title = $title;
@@ -69,11 +69,11 @@ class Questionnaire {
         $this->enable = $enable;
     }
 
-    public function get_question_arr(): array {
+    public function get_question_arr(): ?array {
         return $this->question_arr;
     }
 
-    public function set_question_arr(array $question_arr): void {
+    public function set_question_arr(?array $question_arr): void {
         $this->question_arr = $question_arr;
     }
 

@@ -10,9 +10,9 @@ class User {
     private string $phone;
     private string $authority;
     private bool $enable;
-    private array $questionnaire_arr;
+    private ?array $questionnaire_arr;
 
-    public function __construct(int $id, string $username, ?string $password, string $nickname, string $phone, string $authority, bool $enable, array $questionnaire_arr = []) {
+    public function __construct(int $id, string $username, ?string $password, string $nickname, string $phone, string $authority, bool $enable, ?array $questionnaire_arr = null) {
         $this->id = $id;
         $this->username = $username;
         $this->password = $password;
@@ -79,11 +79,11 @@ class User {
         $this->enable = $enable;
     }
 
-    public function get_questionnaire_arr(): array {
+    public function get_questionnaire_arr(): ?array {
         return $this->questionnaire_arr;
     }
 
-    public function set_questionnaire_arr(array $questionnaire_arr): void {
+    public function set_questionnaire_arr(?array $questionnaire_arr): void {
         $this->questionnaire_arr = $questionnaire_arr;
     }
 
