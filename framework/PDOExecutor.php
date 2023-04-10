@@ -21,17 +21,17 @@ class PDOExecutor {
         }
 
         $json = file_get_contents($config_file);
-        $json_obj = json_decode($json);
-        if (!isset($json_obj)) {
+        $mysql_config = json_decode($json)->mysql;
+        if (!isset($mysql_config)) {
             throw new LoadConfigException("无法解析配置文件 \"{$config_file}\"");
         }
 
         $err_msg = "数据库配置文件 \"{$config_file}\" 配置缺失";
-        $host = $json_obj->host ?? throw new LoadConfigException($err_msg);
-        $port = $json_obj->port ?? throw new LoadConfigException($err_msg);
-        $database = $json_obj->database ?? throw new LoadConfigException($err_msg);
-        $username = $json_obj->username ?? throw new LoadConfigException($err_msg);
-        $password = $json_obj->password ?? throw new LoadConfigException($err_msg);
+        $host = $mysql_config->host ?? throw new LoadConfigException($err_msg);
+        $port = $mysql_config->port ?? throw new LoadConfigException($err_msg);
+        $database = $mysql_config->database ?? throw new LoadConfigException($err_msg);
+        $username = $mysql_config->username ?? throw new LoadConfigException($err_msg);
+        $password = $mysql_config->password ?? throw new LoadConfigException($err_msg);
 
         try {
             $this->db = new PDO("mysql:host={$host}:{$port};dbname={$database}", $username, $password, array(PDO::ATTR_PERSISTENT => true));
