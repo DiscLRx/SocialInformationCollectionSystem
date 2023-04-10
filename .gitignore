@@ -2,3 +2,6 @@
 *.log
 DatabaseConfig.json
 nginx.htaccess
+composer.json
+composer.lock
+vendor
