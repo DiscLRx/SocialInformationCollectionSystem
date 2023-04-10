@@ -56,7 +56,11 @@ class TokenAuthFilter implements AuthFilter {
         $uid = $payload['uid'];
 
         $redis = new RedisExecutor();
-        $user = JSON::unserialize($redis->get("uid_{$uid}"), User::class);
+        $user_cache = $redis->get("uid_{$uid}");
+        if ($user_cache===false){
+            return false;
+        }
+        $user = JSON::unserialize($user_cache, User::class);
         $GLOBALS['USER'] = $user;
         return $user->get_authority();
     }
