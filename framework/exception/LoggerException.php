@@ -22,7 +22,7 @@ class LoggerException extends RuntimeException {
         $this->cause_by_exception = null;
     }
 
-    public function set_causeby_exception(Exception $cause_by_exception = null) {
+    public function set_causeby_exception(Exception|Error|null $cause_by_exception = null) {
         if ($cause_by_exception instanceof LoggerException) {
             $this->cause_by_exception = $cause_by_exception->get_causeby_exception();;
         } else {
