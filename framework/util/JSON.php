@@ -33,7 +33,7 @@ class JSON {
                 continue;
             }
             if (is_object($value)) {
-                $value = self::serialize($value);
+                $value = self::__serialize__($value);
             } else if (is_string($value)) {
                 $value = "\"{$value}\"";
             } else if (is_bool($value)) {
@@ -74,7 +74,7 @@ class JSON {
             if (is_object($j_obj->$key)) {
                 $ref->getProperty($key)->setValue(
                     $obj,
-                    self::unserialize(
+                    self::__unserialize__(
                         json_encode($j_obj->$key),
                         $ref->getProperty($key)->getType()->getName()
                     )
