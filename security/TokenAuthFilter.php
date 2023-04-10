@@ -2,10 +2,13 @@
 
 namespace security;
 
+use entity\User;
 use framework\AuthFilter;
-use framework\exception\AttributeNotFoundException;
-use framework\log\LogLevel;
+use framework\RedisExecutor;
+use framework\util\JSON;
+use framework\util\JWT;
 use ReflectionClass;
+use RuntimeException;
 
 require_once 'security/RequireAuthority.php';
 
@@ -20,6 +23,9 @@ class TokenAuthFilter implements AuthFilter {
             return false;
         }
         $user_auth = $this->token_verify($token);
+        if ($user_auth===false){
+            return false;
+        }
         if (in_array($user_auth, $require_auths) || $user_auth==="Admin") {
             return true;
         } else {
@@ -39,9 +45,19 @@ class TokenAuthFilter implements AuthFilter {
         return ["PermitAll"];
     }
 
-    private function token_verify(string $token): string {
-        // TODO token校验
-        return "User";
+    private function token_verify(string $token): string|bool {
+
+        $jwt = new JWT();
+        try {
+            $payload = (array)$jwt->decode($token);
+        } catch (RuntimeException $e) {
+            return false;
+        }
+        $uid = $payload['uid'];
+
+        $redis = new RedisExecutor();
+        $user = JSON::unserialize($redis->get($uid), User::class);
+        return $user->get_authority();
     }
 
     public function do_after_accept(): void {}
