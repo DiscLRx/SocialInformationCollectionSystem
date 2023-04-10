@@ -35,7 +35,7 @@ require_once 'framework/exception/FileNotFoundException.php';
 require_once 'framework/exception/InterfaceNotImplementException.php';
 require_once 'framework/exception/ErrorException.php';
 require_once 'framework/exception/DatabaseException.php';
-require_once 'framework/exception/FormatUtil.php';
+require_once 'framework/util/FormatUtil.php';
 require_once 'framework/exception/JSONSerializeException.php';
 require_once 'framework/util/JSON.php';
 require_once 'framework/PDOExecutor.php';
