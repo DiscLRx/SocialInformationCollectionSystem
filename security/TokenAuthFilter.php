@@ -50,13 +50,14 @@ class TokenAuthFilter implements AuthFilter {
         $jwt = new JWT();
         try {
             $payload = (array)$jwt->decode($token);
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             return false;
         }
         $uid = $payload['uid'];
 
         $redis = new RedisExecutor();
-        $user = JSON::unserialize($redis->get($uid), User::class);
+        $user = JSON::unserialize($redis->get("uid_{$uid}"), User::class);
+        $GLOBALS['USER'] = $user;
         return $user->get_authority();
     }
 
