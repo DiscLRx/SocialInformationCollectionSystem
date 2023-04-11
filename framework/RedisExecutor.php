@@ -46,7 +46,7 @@ class RedisExecutor {
         });
     }
 
-    public function set($key, string $value, mixed $timeout = null): bool|Redis {
+    public function set($key, string $value, mixed $timeout = null): bool {
         try {
             return $this->db->set($key, $value, $timeout);
         } catch (RedisException $e) {
@@ -58,6 +58,15 @@ class RedisExecutor {
     public function get($key) {
         try {
             return $this->db->get($key);
+        } catch (RedisException $e) {
+            $this->log_redis_exception($e);
+            return false;
+        }
+    }
+
+    public function keys(string $partten): array|false {
+        try {
+            return $this->db->keys($partten);
         } catch (RedisException $e) {
             $this->log_redis_exception($e);
             return false;
