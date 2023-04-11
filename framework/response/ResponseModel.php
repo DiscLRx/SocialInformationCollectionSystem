@@ -7,7 +7,8 @@ class ResponseModel {
      * @var int
      * 0 success
      * 1 permission denied
-     * 2 invalid argument
+     * 2 refresh token
+     * 3 invalid argument
      * 5 unknown error
      */
     public int $code;

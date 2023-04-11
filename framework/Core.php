@@ -204,8 +204,9 @@ final class Core {
         //权限验证
         $headers = getallheaders();
         $token = $headers['Token'] ?? null;
-        if (!$this->security($token, $controller_class, $func_name)) {
-            return Response::permission_denied();
+        $auth_ret = $this->security($token, $controller_class, $func_name);
+        if (!$auth_ret['result']) {
+            return $auth_ret['response'];
         }
 
         $body = file_get_contents('php://input');
@@ -258,22 +259,28 @@ final class Core {
         return false;
     }
 
-    private function security($token, $controller_class, $func_name): bool {
+    /**
+     * @param ?string $token
+     * @param string $controller_class  目标controller类
+     * @param string $func_name 目标controller方法
+     * @return array ['result'=>(bool)验证结果, 'response'=>(ResponseModel)验证失败响应]
+     */
+    private function security(?string $token, string $controller_class, string $func_name): array {
         $auth_filter_name = AppEnv::$auth_filter_impl;
         if ($auth_filter_name === "") {
-            return true;
+            return ['result'=>true];
         }
         $auth_filter = new $auth_filter_name();
         if (!$auth_filter instanceof AuthFilter) {
             throw new InterfaceNotImplementException(AuthFilter::class, $auth_filter_name, LogLevel::ERROR);
         }
         $filter_ret = $auth_filter->do_filter($token, $controller_class, $func_name);
-        if ($filter_ret) {
-            $auth_filter->do_after_accept();
+        if ($filter_ret['result']) {
+            $auth_filter->do_after_accept($filter_ret['data']);
+            return ['result'=>true];
         } else {
-            $auth_filter->do_after_denied();
+            return ['result'=>false, 'response'=> $auth_filter->do_after_denied($filter_ret['data'])];
         }
-        return $filter_ret;
     }
 
 }

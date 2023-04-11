@@ -30,8 +30,12 @@ class Response {
         return self::set_response(1, $data);
     }
 
-    public static function invalid_argument($data = null): ResponseModel {
+    public static function refresh_token($data = null): ResponseModel {
         return self::set_response(2, $data);
+    }
+
+    public static function invalid_argument($data = null): ResponseModel {
+        return self::set_response(3, $data);
     }
 
     public static function unknown_error($data = null): ResponseModel {
