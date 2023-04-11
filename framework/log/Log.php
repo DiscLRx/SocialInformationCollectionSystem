@@ -8,7 +8,7 @@ use framework\util\Time;
 class Log {
 
     public static function log(LogLevel $level, string $msg): void {
-        $ts = Time::current_time_millis();
+        $ts = Time::current_ts();
         $date = date('[Y-m-d H:i:s.', intval($ts / 1000)) . $ts % 1000 . ']';
         $data = $date . '[' . str_pad($level->name, 5) . '] ' . $msg . "\n";
         $f = fopen(AppEnv::$log_file, 'a');
