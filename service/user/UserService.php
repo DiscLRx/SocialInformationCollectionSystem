@@ -10,12 +10,13 @@ use framework\RedisExecutor;
 use framework\response\Response;
 use framework\response\ResponseModel;
 use framework\util\JSON;
-use framework\util\JWT;
 use framework\util\Time;
+use security\TokenAuthConfigLoader;
 
 require_once 'dao/UserDaoImpl.php';
 require_once 'framework/RedisExecutor.php';
 require_once 'dto/response/user/SigninResDto.php';
+require_once 'security/TokenAuthConfigLoader.php';
 
 class UserService {
 
@@ -105,7 +106,7 @@ class UserService {
         if ($ret) {
             $uid = $user->get_id();
 
-            $jwt = new JWT();
+            $jwt = (new TokenAuthConfigLoader())->get_jwt();
             $payload = array(
                 "uid" => $uid,
                 "ts" => Time::current_ts()

@@ -5,7 +5,6 @@
   "log_level": "info",
   "auth_filter_impl": "security\\TokenAuthFilter",
   "exception_handler_impl": "exception\\ExceptionHandlerImpl",
-  "jwt_key": "exampleJwtKey",
   "controller_classes": [
     "user\\QuestionnnaireManageController",
     "user\\QuestionnnaireAnswerController",

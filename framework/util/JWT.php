@@ -4,7 +4,6 @@ namespace framework\util;
 
 use Firebase\JWT\JWT as FJWT;
 use Firebase\JWT\Key as FKey;
-use framework\AppEnv;
 use stdClass;
 
 class JWT {
@@ -12,7 +11,7 @@ class JWT {
     private string $jwt_key;
 
     public function __construct(string $jwt_key = null){
-        $this->jwt_key = $jwt_key ?? AppEnv::$jwt_key;
+        $this->jwt_key = $jwt_key ?? 'DefaultKey_L6bdaCXipfbj6L2BUr7koxPruVeW6b';
     }
 
     public function create($payload): string {

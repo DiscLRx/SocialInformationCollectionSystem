@@ -9,16 +9,21 @@ use framework\RedisExecutor;
 use framework\response\Response;
 use framework\response\ResponseModel;
 use framework\util\JSON;
-use framework\util\JWT;
 use framework\util\Time;
 use ReflectionClass;
 use RuntimeException;
 
 require_once 'security/RequireAuthority.php';
 require_once 'dto/response/RefreshTokenResDto.php';
+require_once 'security/TokenAuthConfigLoader.php';
 
 class TokenAuthFilter implements AuthFilter {
 
+    private TokenAuthConfigLoader $config_loader;
+
+    public function __construct() {
+        $this->config_loader = new TokenAuthConfigLoader();
+    }
 
     public function do_filter(?string $token, string $class_name, string $func_name): array {
         $require_auths = $this->get_require_authorities($class_name, $func_name);
@@ -63,28 +68,25 @@ class TokenAuthFilter implements AuthFilter {
             return ['result' => 'not_signin'];
         }
         //提取token负载
-        $jwt = new JWT();
         try {
-            $payload = (array)$jwt->decode($token);
+            $payload = (array)($this->config_loader->get_jwt()->decode($token));
         } catch (RuntimeException) {
             return ['result' => 'not_signin'];
         }
         $uid = $payload['uid'];
         $auth_ts = $payload['ts'];
 
-        //加载token有效期配置
-        $tacjson = file_get_contents('configuration/TokenAuthConfig.json');
-        $tacobj = json_decode($tacjson);
-        $expcfg = $tacobj->token_expire;
-        $rfrcfg = $tacobj->token_refresh;
-
         //验证token有效期
-        $exp_ts = Time::ts_after($auth_ts, $expcfg->d, $expcfg->h, $expcfg->m, $expcfg->s, $expcfg->ms);
+        $expcfg = $this->config_loader->get_expcfg();
+        $rfrcfg = $this->config_loader->get_rfrcfg();
+        $exp_ts = Time::ts_after($auth_ts,
+            $expcfg->d, $expcfg->h, $expcfg->m, $expcfg->s, $expcfg->ms);
         $current_ts = Time::current_ts();
         if ($exp_ts < $current_ts) {
             return ['result' => 'not_signin'];
         } else {
-            $refresh_ts = Time::ts_after($auth_ts, $rfrcfg->d, $rfrcfg->h, $rfrcfg->m, $rfrcfg->s, $rfrcfg->ms);
+            $refresh_ts = Time::ts_after($auth_ts,
+                $rfrcfg->d, $rfrcfg->h, $rfrcfg->m, $rfrcfg->s, $rfrcfg->ms);
             if ($refresh_ts <= $current_ts) {
                 return ['result' => 'refresh', 'payload' => $payload];
             }
@@ -115,7 +117,7 @@ class TokenAuthFilter implements AuthFilter {
             //更新token创建时间,实现token续期
             13 => (function($payload){
                 $payload['ts'] = Time::current_ts();
-                $token = (new JWT())->create($payload);
+                $token = $this->config_loader->get_jwt()->create($payload);
                 return Response::refresh_token(new RefreshTokenResDto($token));
             })($data['payload'])
         };
