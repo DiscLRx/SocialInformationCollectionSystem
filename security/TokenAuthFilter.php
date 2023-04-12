@@ -2,7 +2,7 @@
 
 namespace security;
 
-use dto\response\TokenResDto;
+use dto\response\RefreshTokenResDto;
 use entity\User;
 use framework\AuthFilter;
 use framework\RedisExecutor;
@@ -15,6 +15,7 @@ use ReflectionClass;
 use RuntimeException;
 
 require_once 'security/RequireAuthority.php';
+require_once 'dto/response/RefreshTokenResDto.php';
 
 class TokenAuthFilter implements AuthFilter {
 
@@ -109,7 +110,7 @@ class TokenAuthFilter implements AuthFilter {
             13 => (function($payload){
                 $payload['ts'] = Time::current_ts();
                 $token = (new JWT())->create($payload);
-                return Response::refresh_token(new TokenResDto($token));
+                return Response::refresh_token(new RefreshTokenResDto($token));
             })($data['payload'])
         };
     }
