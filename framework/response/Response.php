@@ -26,16 +26,20 @@ class Response {
         return self::set_response(0, $data);
     }
 
+    public static function require_to_signin($data = null): ResponseModel {
+        return self::set_response(11, $data);
+    }
+
     public static function permission_denied($data = null): ResponseModel {
-        return self::set_response(1, $data);
+        return self::set_response(12, $data);
     }
 
     public static function refresh_token($data = null): ResponseModel {
-        return self::set_response(2, $data);
+        return self::set_response(13, $data);
     }
 
     public static function invalid_argument($data = null): ResponseModel {
-        return self::set_response(3, $data);
+        return self::set_response(21, $data);
     }
 
     public static function unknown_error($data = null): ResponseModel {

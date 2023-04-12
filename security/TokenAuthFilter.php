@@ -22,16 +22,21 @@ class TokenAuthFilter implements AuthFilter {
     public function do_filter(?string $token, string $class_name, string $func_name): array {
         $require_auths = $this->get_require_authorities($class_name, $func_name);
         if (in_array("PermitAll", $require_auths)) {
-            return ['result' => true, 'data' => ['msg' => 'permit all']];
+            return ['result' => true, 'data' => ['code' => -1]];
         }
 
         $ret = $this->token_verify($token);
         return match ($ret['result']) {
-            'denied' => ['result' => false, 'data' => ['msg' => 'token error']],
-            'expired' => ['result' => false, 'data' => ['msg' => 'token expired']],
-            'refresh' => ['result' => false, 'data' => ['msg' => 'token refresh', 'payload' => $ret['payload']]],
-            'passed' => in_array($ret['user']->get_authority(), $require_auths) || $ret['user']->get_authority() === "Admin" ?
-                ['result' => true, 'data' => ['msg' => 'auth ok', 'user' => $ret['user']]] : ['result' => false, 'data' => ['msg' => 'authority error']]
+            'not_signin' => ['result' => false, 'data' => ['code' => 11]],
+            'refresh' => ['result' => false, 'data' => ['code' => 13, 'payload' => $ret['payload']]],
+            'passed' => (function($user, $require_auths){
+                $authority = $user->get_authority();
+                if (in_array($authority, $require_auths) || $authority === "Admin"){
+                    return ['result' => true, 'data' => ['code' => 0, 'user' => $user]];
+                } else {
+                    return ['result' => false, 'data' => ['code' => 12]];
+                }
+            })($ret['user'], $require_auths)
         };
     }
 
@@ -54,14 +59,14 @@ class TokenAuthFilter implements AuthFilter {
     private function token_verify(?string $token): array {
 
         if (!isset($token)) {
-            return ['result' => 'denied'];
+            return ['result' => 'not_signin'];
         }
         //提取token负载
         $jwt = new JWT();
         try {
             $payload = (array)$jwt->decode($token);
         } catch (RuntimeException) {
-            return ['result' => 'denied'];
+            return ['result' => 'not_signin'];
         }
         $uid = $payload['uid'];
         $auth_ts = $payload['ts'];
@@ -70,7 +75,7 @@ class TokenAuthFilter implements AuthFilter {
         $exp_ts = Time::ts_after($auth_ts, 7 );
         $current_ts = Time::current_ts();
         if ($exp_ts < $current_ts) {
-            return ['result' => 'expired'];
+            return ['result' => 'not_signin'];
         } else {
             $refresh_ts = Time::ts_after($auth_ts, 0, 1);
             if ($refresh_ts <= $current_ts) {
@@ -82,29 +87,30 @@ class TokenAuthFilter implements AuthFilter {
         $user_cache = $redis->get("uid_{$uid}");
         //redis中没有用户信息则认为用户登录过期
         if ($user_cache === false) {
-            return ['result' => 'expired'];
+            return ['result' => 'not_signin'];
         }
         $user = JSON::unserialize($user_cache, User::class);
         return ['result' => 'passed', 'user' => $user];
     }
 
     public function do_after_accept(mixed $data): void {
-        $msg = $data['msg'];
-        if ($msg==='auth ok'){
+        $code = $data['code'];
+        if ($code===0){
             $GLOBALS['USER'] = $data['user'];
         }
     }
 
     public function do_after_denied(mixed $data): ResponseModel {
-        $msg = $data['msg'];
-        if ($msg==='token refresh'){
+        $code = $data['code'];
+        return match ($code){
+            11 => Response::require_to_signin(),
+            12 => Response::permission_denied(),
             //更新token创建时间,实现token续期
-            $payload = $data['payload'];
-            $payload['ts'] = Time::current_ts();
-            $token = (new JWT())->create($payload);
-            return Response::refresh_token(new TokenResDto($token));
-        }else{
-            return Response::permission_denied();
-        }
+            13 => (function($payload){
+                $payload['ts'] = Time::current_ts();
+                $token = (new JWT())->create($payload);
+                return Response::refresh_token(new TokenResDto($token));
+            })($data['payload'])
+        };
     }
 }
