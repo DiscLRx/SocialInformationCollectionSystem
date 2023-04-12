@@ -14,7 +14,6 @@ use framework\util\Time;
 use security\TokenAuthConfigLoader;
 
 require_once 'dao/UserDaoImpl.php';
-require_once 'framework/RedisExecutor.php';
 require_once 'dto/response/user/SigninResDto.php';
 require_once 'security/TokenAuthConfigLoader.php';
 
