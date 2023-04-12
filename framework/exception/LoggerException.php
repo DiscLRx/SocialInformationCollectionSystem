@@ -23,11 +23,7 @@ class LoggerException extends RuntimeException {
     }
 
     public function set_causeby_exception(Exception|Error|null $cause_by_exception = null) {
-        if ($cause_by_exception instanceof LoggerException) {
-            $this->cause_by_exception = $cause_by_exception->get_causeby_exception();;
-        } else {
-            $this->cause_by_exception = $cause_by_exception;
-        }
+        $this->cause_by_exception = $cause_by_exception;
     }
 
     public function get_causeby_exception(): Exception|Error|null {
@@ -62,6 +58,9 @@ class LoggerException extends RuntimeException {
         Log::multiline($this->cause_by_exception->getTrace(), foreach_handler: function ($index, $item) {
             return FormatUtil::trace_line($index, $item);
         });
+        if ($this->cause_by_exception instanceof LoggerException){
+            $this->cause_by_exception->log_trace();
+        }
     }
 
 }
