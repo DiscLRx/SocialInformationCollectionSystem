@@ -10,6 +10,10 @@ require_once 'dao/OptionDao.php';
 
 class OptionDaoImpl extends PDOExecutor implements OptionDao {
 
+    public function __construct() {
+        parent::__construct();
+    }
+
     /**
      * @inheritDoc
      */

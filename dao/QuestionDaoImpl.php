@@ -10,6 +10,10 @@ require_once 'dao/QuestionDao.php';
 
 class QuestionDaoImpl extends PDOExecutor implements QuestionDao {
 
+    public function __construct() {
+        parent::__construct();
+    }
+
     /**
      * @inheritDoc
      */
