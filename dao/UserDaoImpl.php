@@ -114,6 +114,23 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
     /**
      * @inheritDoc
      */
+    public function update_by_id_ex_password(int $id, string $username, string $nickname, string $phone, string $authority, bool $enable): int {
+        $stmt = $this->db->prepare(
+            'UPDATE user SET username=:username, nickname=:nickname, phone=:phone, authority=:authority, enable=:enable WHERE id=:id'
+        );
+        $stmt->bindParam('username', $username);
+        $stmt->bindParam('nickname', $nickname);
+        $stmt->bindParam('phone', $phone);
+        $stmt->bindParam('authority', $authority);
+        $stmt->bindParam('enable', $enable, PDO::PARAM_BOOL);
+        $stmt->bindParam('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function update_enable_by_id(int $id, bool $enable): int {
         $stmt = $this->db->prepare('UPDATE user SET enable=:enable WHERE id=:id');
         $stmt->bindParam('enable', $enable, PDO::PARAM_BOOL);

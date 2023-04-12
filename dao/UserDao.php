@@ -56,6 +56,18 @@ interface UserDao {
     public function update_by_id(int $id, string $username, string $password, string $nickname, string $phone, string $authority, bool $enable): int;
 
     /**
+     * 更新除密码外的用户信息
+     * @param int $id
+     * @param string $username
+     * @param string $nickname
+     * @param string $phone
+     * @param string $authority
+     * @param bool $enable
+     * @return int
+     */
+    public function update_by_id_ex_password(int $id, string $username, string $nickname, string $phone, string $authority, bool $enable): int;
+
+    /**
      * 更新用户的可用性
      * @param int $id       用户id
      * @param bool $enable  可用性
