@@ -5,6 +5,7 @@ namespace security;
 use dto\response\RefreshTokenResDto;
 use entity\User;
 use framework\AuthFilter;
+use framework\exception\JSONSerializeException;
 use framework\RedisExecutor;
 use framework\response\Response;
 use framework\response\ResponseModel;
@@ -16,6 +17,7 @@ use RuntimeException;
 require_once 'security/RequireAuthority.php';
 require_once 'dto/response/RefreshTokenResDto.php';
 require_once 'security/TokenAuthConfigLoader.php';
+require_once 'entity/User.php';
 
 class TokenAuthFilter implements AuthFilter {
 
