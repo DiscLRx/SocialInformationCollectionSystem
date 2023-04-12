@@ -72,13 +72,19 @@ class TokenAuthFilter implements AuthFilter {
         $uid = $payload['uid'];
         $auth_ts = $payload['ts'];
 
+        //加载token有效期配置
+        $tacjson = file_get_contents('configuration/TokenAuthConfig.json');
+        $tacobj = json_decode($tacjson);
+        $expcfg = $tacobj->token_expire;
+        $rfrcfg = $tacobj->token_refresh;
+
         //验证token有效期
-        $exp_ts = Time::ts_after($auth_ts, 7 );
+        $exp_ts = Time::ts_after($auth_ts, $expcfg->d, $expcfg->h, $expcfg->m, $expcfg->s, $expcfg->ms);
         $current_ts = Time::current_ts();
         if ($exp_ts < $current_ts) {
             return ['result' => 'not_signin'];
         } else {
-            $refresh_ts = Time::ts_after($auth_ts, 0, 1);
+            $refresh_ts = Time::ts_after($auth_ts, $rfrcfg->d, $rfrcfg->h, $rfrcfg->m, $rfrcfg->s, $rfrcfg->ms);
             if ($refresh_ts <= $current_ts) {
                 return ['result' => 'refresh', 'payload' => $payload];
             }
