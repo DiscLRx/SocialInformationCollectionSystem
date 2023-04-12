@@ -32,23 +32,32 @@ class JSON {
             if (!isset($value)) {
                 continue;
             }
-            if (is_object($value)) {
-                $value = self::__serialize__($value);
-            } else if (is_string($value)) {
-                $value = "\"{$value}\"";
-            } else if (is_bool($value)) {
-                if ($value) {
-                    $value = "true";
-                } else {
-                    $value = "false";
-                }
-            } else if (is_array($value)) {
-                $value = json_encode($value);
-            }
+            $value = self::get_value_by_type($value);
             $item_arr[] = "\"{$name}\":{$value}";
         }
         $json_str .= implode(',', $item_arr);
         return $json_str . "}";
+    }
+
+    private static function get_value_by_type($value): bool|string {
+        if (is_object($value)) {
+            return self::__serialize__($value);
+        } else if (is_string($value)) {
+                return  "\"{$value}\"";
+        } else if (is_bool($value)) {
+            if ($value) {
+                return  "true";
+            } else {
+                return  "false";
+            }
+        } else if (is_array($value)) {
+            $to_encode_arr = array_map(function ($item) {
+                return self::get_value_by_type($item);
+            } ,$value);
+            return '['.implode(',', $to_encode_arr).']';
+        } else {
+            return $value;
+        }
     }
 
     public static function unserialize(string $json, string $class): mixed {
