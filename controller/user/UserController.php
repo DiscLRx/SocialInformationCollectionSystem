@@ -12,7 +12,6 @@ use framework\util\JSON;
 use security\RequireAuthority;
 use UserService;
 
-require_once 'framework/util/JSON.php';
 require_once 'dto/request/user/UserInfoReqDto.php';
 require_once 'dto/request/user/UserSigninReqDto.php';
 require_once 'service/user/UserService.php';
