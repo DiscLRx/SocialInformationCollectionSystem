@@ -1,6 +1,7 @@
 .idea
 *.log
-DatabaseConfig.json
+configuration/DatabaseConfig.json
+configuration/TokenAuthConfig.json
 nginx.htaccess
 composer.json
 composer.lock
