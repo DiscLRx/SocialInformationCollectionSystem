@@ -6,6 +6,7 @@ use dto\request\user\UserInfoDto;
 use dto\request\user\SigninReqDto;
 use dto\response\user\SigninResDto;
 use entity\User;
+use framework\exception\DatabaseException;
 use framework\RedisExecutor;
 use framework\response\Response;
 use framework\response\ResponseModel;
@@ -57,7 +58,7 @@ class UserService {
 
         $ins_ret = $this->user_dao->insert($username, $password, $nickname, $phone, "User");
         if ($ins_ret === 0) {
-            return Response::unknown_error();
+            throw new DatabaseException("用户表插入失败");
         }
 
         return Response::success();
