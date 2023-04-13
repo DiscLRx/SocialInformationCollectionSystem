@@ -94,7 +94,7 @@ class TokenAuthFilter implements AuthFilter {
             }
         }
 
-        $redis = new RedisExecutor();
+        $redis = new RedisExecutor(0);
         $user_cache = $redis->get("uid_{$uid}");
         //redis中没有用户信息则认为用户登录过期
         if ($user_cache === false) {

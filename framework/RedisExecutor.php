@@ -11,8 +11,8 @@ use Redis;
 use RedisException;
 
 class RedisExecutor {
-    private Redis $db;
-    public function __construct(){
+    private Redis $redis;
+    public function __construct(int $db = 0){
 
         $config_file = AppEnv::$database_config_file;
         if (!file_exists($config_file)){
@@ -30,10 +30,11 @@ class RedisExecutor {
         $port = $redis_config->port ?? throw new LoadConfigException($err_msg);
         $password = $redis_config->password ?? throw new LoadConfigException($err_msg);
 
-        $this->db = new Redis();
+        $this->redis = new Redis();
         try {
-            $this->db->connect($host, $port);
-            $this->db->auth($password);
+            $this->redis->connect($host, $port);
+            $this->redis->auth($password);
+            $this->redis->select($db);
         } catch (RedisException $e) {
             $this->log_redis_exception($e);
         }
@@ -46,9 +47,18 @@ class RedisExecutor {
         });
     }
 
+    public function select(int $db): bool {
+        try {
+            return $this->redis->select($db);
+        } catch (RedisException $e) {
+            $this->log_redis_exception($e);
+            return false;
+        }
+    }
+
     public function set($key, string $value, mixed $timeout = null): bool {
         try {
-            return $this->db->set($key, $value, $timeout);
+            return $this->redis->set($key, $value, $timeout);
         } catch (RedisException $e) {
             $this->log_redis_exception($e);
             return false;
@@ -57,7 +67,7 @@ class RedisExecutor {
 
     public function get($key) {
         try {
-            return $this->db->get($key);
+            return $this->redis->get($key);
         } catch (RedisException $e) {
             $this->log_redis_exception($e);
             return false;
@@ -66,7 +76,7 @@ class RedisExecutor {
 
     public function keys(string $partten): array|false {
         try {
-            return $this->db->keys($partten);
+            return $this->redis->keys($partten);
         } catch (RedisException $e) {
             $this->log_redis_exception($e);
             return false;

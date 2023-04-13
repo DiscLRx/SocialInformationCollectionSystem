@@ -25,7 +25,7 @@ class UserService {
 
     public function __construct() {
         $this->user_dao = new UserDaoImpl();
-        $this->redis = new RedisExecutor();
+        $this->redis = new RedisExecutor(0);
     }
 
 
