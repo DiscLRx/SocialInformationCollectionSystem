@@ -9,11 +9,11 @@ class Time {
         return (int)$ts;
     }
 
-    public static function ts_after(int $origin_ts, int $day, int $hour = 0, int $minute = 0, int $second = 0, int $millisecond = 0): int {
+    public static function ts_after(int $origin_ts, int $day = 0, int $hour = 0, int $minute = 0, int $second = 0, int $millisecond = 0): int {
         return self::calculate_ts($origin_ts, $day, $hour, $minute, $second, $millisecond, true);
     }
 
-    public static function ts_before(int $origin_ts, int $day, int $hour = 0, int $minute = 0, int $second = 0, int $millisecond = 0): int {
+    public static function ts_before(int $origin_ts, int $day = 0, int $hour = 0, int $minute = 0, int $second = 0, int $millisecond = 0): int {
         return self::calculate_ts($origin_ts, $day, $hour, $minute, $second, $millisecond, false);
     }
 
