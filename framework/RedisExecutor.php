@@ -2,11 +2,9 @@
 
 namespace framework;
 
+use framework\exception\DatabaseException;
 use framework\exception\FileNotFoundException;
 use framework\exception\LoadConfigException;
-use framework\log\Log;
-use framework\log\LogLevel;
-use framework\util\FormatUtil;
 use Redis;
 use RedisException;
 
@@ -36,23 +34,19 @@ class RedisExecutor {
             $this->redis->auth($password);
             $this->redis->select($db);
         } catch (RedisException $e) {
-            $this->log_redis_exception($e);
+            $de = new DatabaseException("初始化redis连接失败");
+            $de->set_causeby_exception($e);
+            throw new $de;
         }
-    }
-
-    private function log_redis_exception($e): void {
-        Log::log(LogLevel::ERROR ,$e->getMessage());
-        Log::multiline($e->getTrace(), foreach_handler: function ($index, $item) {
-            return FormatUtil::trace_line($index, $item);
-        });
     }
 
     public function select(int $db): bool {
         try {
             return $this->redis->select($db);
         } catch (RedisException $e) {
-            $this->log_redis_exception($e);
-            return false;
+            $de = new DatabaseException("切换redis数据库失败");
+            $de->set_causeby_exception($e);
+            throw new $de;
         }
     }
 
@@ -60,8 +54,9 @@ class RedisExecutor {
         try {
             return $this->redis->set($key, $value, $timeout);
         } catch (RedisException $e) {
-            $this->log_redis_exception($e);
-            return false;
+            $de = new DatabaseException("设置redis键值失败");
+            $de->set_causeby_exception($e);
+            throw new $de;
         }
     }
 
@@ -69,8 +64,19 @@ class RedisExecutor {
         try {
             return $this->redis->get($key);
         } catch (RedisException $e) {
-            $this->log_redis_exception($e);
-            return false;
+            $de = new DatabaseException("查询redis键值失败");
+            $de->set_causeby_exception($e);
+            throw new $de;
+        }
+    }
+
+    public function del( $key, ...$otherKeys): bool|int {
+        try {
+            return $this->redis->del($key, ...$otherKeys);
+        } catch (RedisException $e) {
+            $de = new DatabaseException("删除redis键值失败");
+            $de->set_causeby_exception($e);
+            throw new $de;
         }
     }
 
@@ -78,8 +84,9 @@ class RedisExecutor {
         try {
             return $this->redis->keys($partten);
         } catch (RedisException $e) {
-            $this->log_redis_exception($e);
-            return false;
+            $de = new DatabaseException("查询redis key失败");
+            $de->set_causeby_exception($e);
+            throw new $de;
         }
     }
 
