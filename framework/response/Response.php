@@ -42,6 +42,10 @@ class Response {
         return self::set_response(21, $data);
     }
 
+    public static function reject_request($data = null): ResponseModel {
+        return self::set_response(31, $data);
+    }
+
     public static function unknown_error($data = null): ResponseModel {
         return self::set_response(5, $data);
     }
