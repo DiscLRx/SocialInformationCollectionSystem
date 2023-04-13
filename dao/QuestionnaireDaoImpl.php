@@ -102,4 +102,15 @@ class QuestionnaireDaoImpl extends PDOExecutor implements QuestionnaireDao {
         return $stmt->rowCount();
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function delete_by_id(int $id): int {
+        $stmt = $this->db->prepare(
+            'DELETE FROM questionnaire WHERE id=:id'
+        );
+        $stmt->bindParam('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
 }

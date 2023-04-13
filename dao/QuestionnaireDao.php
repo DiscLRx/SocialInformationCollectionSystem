@@ -54,4 +54,11 @@ interface QuestionnaireDao {
      * @return int          受影响的行数
      */
     public function update_enable_by_id(int $id, bool $enable): int;
+
+    /**
+     * 删除问卷
+     * @param int $id   问卷id
+     * @return int      受影响的行数
+     */
+    public function delete_by_id(int $id): int;
 }
