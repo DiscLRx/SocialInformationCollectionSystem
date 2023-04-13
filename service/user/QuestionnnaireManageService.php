@@ -19,6 +19,7 @@ use framework\RedisExecutor;
 use framework\response\Response;
 use framework\response\ResponseModel;
 use framework\util\JSON;
+use framework\util\Time;
 
 require_once 'dao/QuestionnaireDaoImpl.php';
 require_once 'dao/QuestionDaoImpl.php';
@@ -88,25 +89,9 @@ class QuestionnnaireManageService {
 
     public function get_questionnnaire_detail(int $qnid): ResponseModel {
 
-        $qn_str = $this->redis->get("qnid_{$qnid}");
-        if ($qn_str===false){
-            $qn = $this->questionnaire_dao->select_by_id($qnid);
-            if (!isset($qn)){
-                return Response::invalid_argument();
-            }
-            $q_arr = $this->question_dao->select_by_questionnaireid($qnid);
-
-            $q_arr = array_map(
-                function ($q) {
-                    $o_arr = $this->option_dao->select_by_questionid($q->get_id());
-                    $q->set_option_arr($o_arr);
-                    return $q;
-                }, $q_arr);
-            $qn->set_question_arr($q_arr);
-
-            $this->redis->set("qnid_{$qnid}", JSON::serialize($qn));
-        }else{
-            $qn = $this->unserialize_questionnnaire($qn_str);
+        $qn = $this->get_questionnaire($qnid);
+        if ($qn instanceof ResponseModel){
+            return $qn;
         }
 
         if ($qn->get_user_id()!==$GLOBALS['USER']->get_id()){
@@ -140,6 +125,30 @@ class QuestionnnaireManageService {
         return Response::success($qn_detail_dto);
     }
 
+    private function get_questionnaire(int $qnid): Questionnaire|ResponseModel {
+        $qn_str = $this->redis->get("qnid_{$qnid}");
+        if ($qn_str===false){
+            $qn = $this->questionnaire_dao->select_by_id($qnid);
+            if (!isset($qn)){
+                return Response::invalid_argument();
+            }
+            $q_arr = $this->question_dao->select_by_questionnaireid($qnid);
+
+            $q_arr = array_map(
+                function ($q) {
+                    $o_arr = $this->option_dao->select_by_questionid($q->get_id());
+                    $q->set_option_arr($o_arr);
+                    return $q;
+                }, $q_arr);
+            $qn->set_question_arr($q_arr);
+
+            $this->redis->set("qnid_{$qnid}", JSON::serialize($qn));
+        }else{
+            $qn = $this->unserialize_questionnnaire($qn_str);
+        }
+        return $qn;
+    }
+
     private function unserialize_questionnnaire($json_str): Questionnaire{
         $qn = JSON::unserialize($json_str, Questionnaire::class);
         $q_arr = $qn->get_question_arr();
@@ -152,6 +161,32 @@ class QuestionnnaireManageService {
             return $q;
         }, $q_arr));
         return $qn;
+    }
+
+    public function update_questionnnaire(int $qnid, QuestionnaireCreateDto $qn_dto): ResponseModel {
+
+        $qn = $this->get_questionnaire($qnid);
+        if ($qn instanceof ResponseModel){
+            return $qn;
+        }
+
+        $uid = $GLOBALS['USER']->get_id();
+        if ($uid!==$qn->get_user_id()){
+            return Response::permission_denied();
+        }
+
+        //问卷开始后不允许修改
+        if (Time::ts_after($qn->get_begin_date(), second: 5)<=Time::current_ts()){
+            return Response::reject_request("不允许修改已开始的问卷");
+        }
+
+        //删除已有问卷,重新创建
+        $line = $this->questionnaire_dao->delete_by_id($qnid);
+        if ($line!==1){
+            throw new DatabaseException("删除问卷失败, qnid:{$qnid}");
+        }
+        $this->redis->del("qnid_{$qnid}");
+        return $this->create_questionnnaire($qn_dto);
     }
 
 }

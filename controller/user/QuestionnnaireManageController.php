@@ -62,4 +62,28 @@ class QuestionnnaireManageController {
         return $this->qm_service->create_questionnnaire($qn);
     }
 
+    #[RequestMapping("PUT", "/user-api/questionnnaires/*")]
+    #[RequireAuthority('User')]
+    public function update_questionnnaire($uri_arr, $uri_query_map, $body): ResponseModel {
+        $qnid = $uri_arr[2];
+        if (!is_numeric($qnid)){
+            return Response::invalid_argument();
+        }
+        try {
+            $qn = JSON::unserialize($body, QuestionnaireCreateDto::class);
+            $q_arr = $qn->get_question();
+            $qn->set_question(array_map(function ($q) {
+                $q = JSON::unserialize(JSON::serialize($q), QuestionInfoDto::class);
+                $o_arr = $q->get_option();
+                $q->set_option(array_map(function ($o) {
+                    return JSON::unserialize(JSON::serialize($o), OptionInfoDto::class);
+                }, $o_arr));
+                return $q;
+            }, $q_arr));
+        } catch (JSONSerializeException) {
+            return Response::invalid_argument();
+        }
+        return $this->qm_service->update_questionnnaire(intval($qnid), $qn);
+    }
+
 }
