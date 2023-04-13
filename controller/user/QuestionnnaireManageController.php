@@ -32,6 +32,16 @@ class QuestionnnaireManageController {
         return $this->qm_service->get_questionnnaire_list();
     }
 
+    #[RequestMapping("GET", "/user-api/questionnnaires/*")]
+    #[RequireAuthority('User')]
+    public function get_questionnnaire_detail($uri_arr, $uri_query_map, $body): ResponseModel {
+        $qnid = $uri_arr[2];
+        if (!is_numeric($qnid)){
+            return Response::invalid_argument();
+        }
+        return $this->qm_service->get_questionnnaire_detail(intval($qnid));
+    }
+
     #[RequestMapping("POST", "/user-api/questionnnaires")]
     #[RequireAuthority('User')]
     public function create_questionnnaire($uri_arr, $uri_query_map, $body): ResponseModel {
