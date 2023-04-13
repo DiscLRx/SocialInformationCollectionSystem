@@ -65,7 +65,11 @@ class QuestionDaoImpl extends PDOExecutor implements QuestionDao {
         $stmt->bindParam('type', $type);
         $stmt->bindParam('content', $content);
         $stmt->execute();
-        return $stmt->rowCount();
+        if ($stmt->rowCount()===0){
+            return 0;
+        } else {
+            return $this->db->lastInsertId();
+        }
     }
 
     /**

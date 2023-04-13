@@ -62,7 +62,11 @@ class OptionDaoImpl extends PDOExecutor implements OptionDao {
         $stmt->bindParam('order', $order, PDO::PARAM_INT);
         $stmt->bindParam('content', $content);
         $stmt->execute();
-        return $stmt->rowCount();
+        if ($stmt->rowCount()===0){
+            return 0;
+        } else {
+            return $this->db->lastInsertId();
+        }
     }
 
     /**

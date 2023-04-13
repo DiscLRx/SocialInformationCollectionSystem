@@ -31,7 +31,7 @@ interface QuestionnaireDao {
      * @param string $title     问卷标题
      * @param int $begin_date   开始时间
      * @param int $end_date     结束时间
-     * @return int              受影响的行数
+     * @return int              受影响的行数为0时返回0，否则返回插入值的自增id
      */
     public function insert(int $user_id, string $title, int $begin_date, int $end_date): int;
 

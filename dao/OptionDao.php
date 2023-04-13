@@ -30,7 +30,7 @@ interface OptionDao {
      * @param int $question_id  问题id
      * @param int $order        选项序号
      * @param string $content   选项内容
-     * @return int              受影响的行数
+     * @return int              受影响的行数为0时返回0，否则返回插入值的自增id
      */
     public function insert(int $question_id, int $order, string $content): int;
 

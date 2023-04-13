@@ -67,7 +67,11 @@ class QuestionnaireDaoImpl extends PDOExecutor implements QuestionnaireDao {
         $stmt->bindParam('begin_date', $begin_date, PDO::PARAM_INT);
         $stmt->bindParam('end_date', $end_date, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->rowCount();
+        if ($stmt->rowCount() === 0){
+            return 0;
+        } else {
+            return $this->db->lastInsertId();
+        }
     }
 
     /**

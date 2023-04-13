@@ -31,7 +31,7 @@ interface  QuestionDao{
      * @param int $order            问题序号
      * @param string $type          问题类型
      * @param string $content       问题内容
-     * @return int                  受影响的行数
+     * @return int                  受影响的行数为0时返回0，否则返回插入值的自增id
      */
     public function insert(int $questionnaire_id, int $order, string $type, string $content): int;
 

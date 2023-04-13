@@ -38,7 +38,7 @@ interface UserDao {
      * @param string $nickname  昵称
      * @param string $phone     电话
      * @param string $authority 权限
-     * @return int              受影响的行数
+     * @return int              受影响的行数为0时返回0，否则返回插入值的自增id
      */
     public function insert(string $username, string $password, string $nickname, string $phone, string $authority): int;
 

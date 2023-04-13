@@ -55,8 +55,8 @@ class UserService {
 
         $password = password_hash($password, PASSWORD_ARGON2ID);
 
-        $line = $this->user_dao->insert($username, $password, $nickname, $phone, "User");
-        if ($line !== 1) {
+        $ins_ret = $this->user_dao->insert($username, $password, $nickname, $phone, "User");
+        if ($ins_ret === 0) {
             return Response::unknown_error();
         }
 
@@ -182,7 +182,7 @@ class UserService {
             $password = password_hash($password, PASSWORD_ARGON2ID);
             $line = $this->user_dao->update_by_id($uid, $username, $password, $nickname, $phone, "User", true);
         }
-        if ( !$diff && $line !== 1) {
+        if ($diff && $line !== 1) {
             return Response::unknown_error();
         }
 

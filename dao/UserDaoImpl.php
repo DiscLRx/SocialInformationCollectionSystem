@@ -90,7 +90,11 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
         $stmt->bindParam('phone', $phone);
         $stmt->bindParam('authority', $authority);
         $stmt->execute();
-        return $stmt->rowCount();
+        if ($stmt->rowCount()===0){
+            return 0;
+        } else {
+            return $this->db->lastInsertId();
+        }
     }
 
     /**
