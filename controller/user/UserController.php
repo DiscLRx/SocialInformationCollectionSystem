@@ -2,8 +2,8 @@
 
 namespace user;
 
-use dto\request\user\UserInfoReqDto;
-use dto\request\user\UserSigninReqDto;
+use dto\request\user\UserInfoDto;
+use dto\request\user\SigninReqDto;
 use framework\exception\JSONSerializeException;
 use framework\RequestMapping;
 use framework\response\Response;
@@ -12,8 +12,8 @@ use framework\util\JSON;
 use security\RequireAuthority;
 use UserService;
 
-require_once 'dto/request/user/UserInfoReqDto.php';
-require_once 'dto/request/user/UserSigninReqDto.php';
+require_once 'dto/request/user/UserInfoDto.php';
+require_once 'dto/request/user/SigninReqDto.php';
 require_once 'service/user/UserService.php';
 
 class UserController {
@@ -28,7 +28,7 @@ class UserController {
     #[RequireAuthority('PermitAll')]
     public function user_signup($uri_arr, $uri_query_map, $body): ResponseModel {
         try {
-            $signup_dto = JSON::unserialize($body, UserInfoReqDto::class);
+            $signup_dto = JSON::unserialize($body, UserInfoDto::class);
         } catch (JSONSerializeException) {
             return Response::invalid_argument();
         }
@@ -39,7 +39,7 @@ class UserController {
     #[RequireAuthority('PermitAll')]
     public function user_signin($uri_arr, $uri_query_map, $body): ResponseModel {
         try {
-            $signin_dto = JSON::unserialize($body, UserSigninReqDto::class);
+            $signin_dto = JSON::unserialize($body, SigninReqDto::class);
         } catch (JSONSerializeException) {
             return Response::invalid_argument();
         }
@@ -50,7 +50,7 @@ class UserController {
     #[RequireAuthority('User')]
     public function update_user($uri_arr, $uri_query_map, $body): ResponseModel {
         try {
-            $update_dto = JSON::unserialize($body, UserInfoReqDto::class);
+            $update_dto = JSON::unserialize($body, UserInfoDto::class);
         } catch (JSONSerializeException) {
             echo 'a';
             return Response::invalid_argument();

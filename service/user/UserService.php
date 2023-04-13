@@ -2,8 +2,8 @@
 
 use dao\UserDao;
 use dao\UserDaoImpl;
-use dto\request\user\UserInfoReqDto;
-use dto\request\user\UserSigninReqDto;
+use dto\request\user\UserInfoDto;
+use dto\request\user\SigninReqDto;
 use dto\response\user\SigninResDto;
 use entity\User;
 use framework\RedisExecutor;
@@ -28,7 +28,7 @@ class UserService {
     }
 
 
-    public function user_signup(UserInfoReqDto $signup_dto): ResponseModel {
+    public function user_signup(UserInfoDto $signup_dto): ResponseModel {
 
         $username = trim($signup_dto->get_username(), ' ');
         $password = trim($signup_dto->get_password(), ' ');
@@ -91,7 +91,7 @@ class UserService {
         return !$flag;
     }
 
-    public function user_signin(UserSigninReqDto $signin_dto): ResponseModel {
+    public function user_signin(SigninReqDto $signin_dto): ResponseModel {
         $username = trim($signin_dto->get_username(), ' ');
         $password = trim($signin_dto->get_password(), ' ');
 
@@ -123,7 +123,7 @@ class UserService {
         }
     }
 
-    public function user_update(UserInfoReqDto $update_dto): ResponseModel {
+    public function user_update(UserInfoDto $update_dto): ResponseModel {
 
         $username = trim($update_dto->get_username(), ' ');
         $password = trim($update_dto->get_password(), ' ');

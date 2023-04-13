@@ -2,7 +2,7 @@
 
 namespace security;
 
-use dto\response\RefreshTokenResDto;
+use dto\response\RefreshTokenDto;
 use entity\User;
 use framework\AuthFilter;
 use framework\exception\JSONSerializeException;
@@ -15,7 +15,7 @@ use ReflectionClass;
 use RuntimeException;
 
 require_once 'security/RequireAuthority.php';
-require_once 'dto/response/RefreshTokenResDto.php';
+require_once 'dto/response/RefreshTokenDto.php';
 require_once 'security/TokenAuthConfigLoader.php';
 require_once 'entity/User.php';
 
@@ -120,7 +120,7 @@ class TokenAuthFilter implements AuthFilter {
             13 => (function($payload){
                 $payload['ts'] = Time::current_ts();
                 $token = $this->config_loader->get_jwt()->create($payload);
-                return Response::refresh_token(new RefreshTokenResDto($token));
+                return Response::refresh_token(new RefreshTokenDto($token));
             })($data['payload'])
         };
     }
