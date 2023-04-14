@@ -61,4 +61,13 @@ class UserController {
         return $this->user_service->user_update($update_dto);
     }
 
+    #[RequestMapping('GET', '/user-api/users/*/answered')]
+    #[RequireAuthority('User')]
+    public function get_answered_questionnaireid($uri_arr, $uri_query_map, $body): ResponseModel {
+        if (intval($uri_arr[2]) !== $GLOBALS['USER']->get_id()) {
+            return Response::permission_denied();
+        }
+        return $this->user_service->get_answered_questionnaireid();
+    }
+
 }

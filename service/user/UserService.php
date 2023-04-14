@@ -1,9 +1,12 @@
 <?php
 
+use dao\AnswerRecordDao;
+use dao\AnswerRecordDaoImpl;
 use dao\UserDao;
 use dao\UserDaoImpl;
 use dto\request\user\UserInfoDto;
 use dto\request\user\SigninReqDto;
+use dto\response\user\AnsweredQnidDto;
 use dto\response\user\SigninResDto;
 use entity\User;
 use framework\exception\DatabaseException;
@@ -15,16 +18,20 @@ use framework\util\Time;
 use security\TokenAuthConfigLoader;
 
 require_once 'dao/UserDaoImpl.php';
+require_once 'dao/AnswerRecordDaoImpl.php';
 require_once 'dto/response/user/SigninResDto.php';
+require_once 'dto/response/user/AnsweredQnidDto.php';
 require_once 'security/TokenAuthConfigLoader.php';
 
 class UserService {
 
     private UserDao $user_dao;
+    private AnswerRecordDao $answer_record_dao;
     private RedisExecutor $redis;
 
     public function __construct() {
         $this->user_dao = new UserDaoImpl();
+        $this->answer_record_dao = new AnswerRecordDaoImpl();
         $this->redis = new RedisExecutor(0);
     }
 
@@ -191,6 +198,13 @@ class UserService {
         $this->redis->set("uid_{$uid}", JSON::serialize($user));
 
         return Response::success();
+    }
+
+    public function get_answered_questionnaireid(): ResponseModel {
+        $uid = $GLOBALS['USER']->get_id();
+        $qnid_arr = $this->answer_record_dao->select_questionnaireid_by_userid($uid);
+        $aqnid_dto = new AnsweredQnidDto($qnid_arr);
+        return Response::success($aqnid_dto);
     }
 
 }
