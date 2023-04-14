@@ -21,10 +21,12 @@ class UserService {
 
     private UserDao $user_dao;
     private AnswerRecordDao $answer_record_dao;
+    private RedisExecutor $redis;
 
     public function __construct() {
         $this->user_dao = new UserDaoImpl();
         $this->answer_record_dao = new AnswerRecordDaoImpl();
+        $this->redis = new RedisExecutor(0);
     }
 
 
