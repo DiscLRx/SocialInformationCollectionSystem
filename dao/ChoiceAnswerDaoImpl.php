@@ -11,8 +11,8 @@ require_once 'dao/ChoiceAnswerDao.php';
 
 class ChoiceAnswerDaoImpl extends PDOExecutor implements ChoiceAnswerDao {
 
-    public function __construct() {
-        parent::__construct();
+    public function __construct(?PDO $db = null) {
+        parent::__construct($db);
     }
 
     /**

@@ -113,3 +113,18 @@ CREATE TABLE `text_answer`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 ```
+
+### answer_record
+
+```mysql
+CREATE TABLE `answer_record`
+(
+    `user_id`          int(11) NOT NULL,
+    `questionnaire_id` int(11) NOT NULL,
+    PRIMARY KEY (`user_id`, `questionnaire_id`),
+    KEY `fk_answer_record_questionnaire_idx` (`questionnaire_id`),
+    CONSTRAINT `fk_answer_record_questionnaire` FOREIGN KEY (`questionnaire_id`) REFERENCES `questionnaire` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_answer_record_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+```

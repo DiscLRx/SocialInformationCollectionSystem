@@ -10,8 +10,8 @@ require_once 'dao/TextAnswerDao.php';
 
 class TextAnswerDaoImpl extends PDOExecutor implements TextAnswerDao {
 
-    public function __construct() {
-        parent::__construct();
+    public function __construct(?PDO $db = null) {
+        parent::__construct($db);
     }
 
     /**
