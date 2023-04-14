@@ -11,6 +11,6 @@
     "user\\UserController",
     "admin\\AdminController",
     "admin\\UserManageController",
-    "admin\\QuestionnnairesController"
+    "admin\\QuestionnnaireController"
   ]
 }

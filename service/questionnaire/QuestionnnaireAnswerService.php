@@ -47,6 +47,10 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
     public function get_content(int $qnid): ResponseModel {
         $qn = $this->get_questionnaire($qnid);
 
+        if (!$qn->is_enable()) {
+            return Response::reject_request();
+        }
+
         $qn_content_dto = new QuestionnaireContentDto(
             $qn->get_id(),
             $qn->get_title()
@@ -75,13 +79,17 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
 
         $uid = $GLOBALS['USER']->get_id();
         $qnid = $qna_dto->get_id();
+        $qn = $this->get_questionnaire($qnid);
+
+        if (!$qn->is_enable()) {
+            return Response::reject_request();
+        }
 
         $answer_record = $this->answer_record_dao->count_by_userid_questionnaireid($uid, $qnid);
         if ($answer_record === 1) {
             return Response::reject_request();
         }
 
-        $qn = $this->get_questionnaire($qnid);
         $question_arr = $qn->get_question_arr();
         $this->choice_answer_dao->start_transaction();
         foreach ($qna_dto->get_answers() as $qa_dto) {

@@ -3,6 +3,7 @@
 namespace service\questionnaire;
 
 use common\QuestionnaireBasicService;
+use dto\request\admin\EnableDto;
 use dto\request\user\QuestionnaireCreateDto;
 use dto\response\user\QuestionnaireListDto;
 use dto\universal\OptionInfoDto;
@@ -132,6 +133,12 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
         }
         $this->redis->del("qnid_{$qnid}");
         return $this->create_questionnnaire($qn_dto);
+    }
+
+    public function set_enable(int $qnid, EnableDto $enable_dto): ResponseModel{
+        $this->questionnaire_dao->update_enable_by_id($qnid, $enable_dto->is_enable());
+        $this->redis->del("qnid_{$qnid}");
+        return Response::success();
     }
 
 }

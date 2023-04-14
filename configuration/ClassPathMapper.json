@@ -20,8 +20,8 @@
     "path": "controller/admin/UserManageController.php"
   },
   {
-    "name": "admin\\QuestionnnairesController",
-    "path": "controller/admin/QuestionnnairesController.php"
+    "name": "admin\\QuestionnnaireController",
+    "path": "controller/admin/QuestionnnaireController.php"
   },
   {
     "name": "security\\TokenAuthFilter",
