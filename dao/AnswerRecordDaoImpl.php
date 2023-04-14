@@ -21,6 +21,7 @@ class AnswerRecordDaoImpl extends PDOExecutor implements AnswerRecordDao {
             'SELECT questionnaire_id FROM answer_record WHERE user_id=:user_id'
         );
         $stmt->bindParam('user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
             return $item['questionnaire_id'];
@@ -35,6 +36,7 @@ class AnswerRecordDaoImpl extends PDOExecutor implements AnswerRecordDao {
             'SELECT user_id FROM answer_record WHERE questionnaire_id=:questionnaire_id'
         );
         $stmt->bindParam('questionnaire_id', $questionnaire_id, PDO::PARAM_INT);
+        $stmt->execute();
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
             return $item['questionnaire_id'];
