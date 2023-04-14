@@ -2,6 +2,7 @@
 
 namespace user;
 
+use common\AuthenticationService;
 use dto\request\user\UserInfoDto;
 use dto\request\user\SigninReqDto;
 use framework\exception\JSONSerializeException;
@@ -15,13 +16,16 @@ use UserService;
 require_once 'dto/request/user/UserInfoDto.php';
 require_once 'dto/request/user/SigninReqDto.php';
 require_once 'service/user/UserService.php';
+require_once 'service/common/AuthenticationService.php';
 
 class UserController {
 
     private UserService $user_service;
+    private AuthenticationService $auth_service;
 
     public function __construct() {
         $this->user_service = new UserService();
+        $this->auth_service = new AuthenticationService();
     }
 
     #[RequestMapping('POST', '/user-api/users')]
@@ -43,7 +47,7 @@ class UserController {
         } catch (JSONSerializeException) {
             return Response::invalid_argument();
         }
-        return $this->user_service->user_signin($signin_dto);
+        return $this->auth_service->signin($signin_dto);
     }
 
     #[RequestMapping('PUT', '/user-api/users/*')]

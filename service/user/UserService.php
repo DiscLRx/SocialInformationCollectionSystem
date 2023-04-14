@@ -5,34 +5,26 @@ use dao\AnswerRecordDaoImpl;
 use dao\UserDao;
 use dao\UserDaoImpl;
 use dto\request\user\UserInfoDto;
-use dto\request\user\SigninReqDto;
 use dto\response\user\AnsweredQnidDto;
-use dto\response\user\SigninResDto;
 use entity\User;
 use framework\exception\DatabaseException;
 use framework\RedisExecutor;
 use framework\response\Response;
 use framework\response\ResponseModel;
 use framework\util\JSON;
-use framework\util\Time;
-use security\TokenAuthConfigLoader;
 
 require_once 'dao/UserDaoImpl.php';
 require_once 'dao/AnswerRecordDaoImpl.php';
-require_once 'dto/response/user/SigninResDto.php';
 require_once 'dto/response/user/AnsweredQnidDto.php';
-require_once 'security/TokenAuthConfigLoader.php';
 
 class UserService {
 
     private UserDao $user_dao;
     private AnswerRecordDao $answer_record_dao;
-    private RedisExecutor $redis;
 
     public function __construct() {
         $this->user_dao = new UserDaoImpl();
         $this->answer_record_dao = new AnswerRecordDaoImpl();
-        $this->redis = new RedisExecutor(0);
     }
 
 
@@ -97,38 +89,6 @@ class UserService {
             strlen($phone) > 20 ||
             !is_numeric($phone);
         return !$flag;
-    }
-
-    public function user_signin(SigninReqDto $signin_dto): ResponseModel {
-        $username = trim($signin_dto->get_username(), ' ');
-        $password = trim($signin_dto->get_password(), ' ');
-
-        $user = $this->user_dao->select_by_username($username);
-
-        $ret = false;
-        if (isset($user)) {
-            $ret = password_verify($password, $user->get_password());
-        }
-
-        if ($ret) {
-            $uid = $user->get_id();
-
-            $jwt = (new TokenAuthConfigLoader())->get_jwt();
-            $payload = array(
-                "uid" => $uid,
-                "ts" => Time::current_ts()
-            );
-            $token = $jwt->create($payload);
-
-            $user->set_password(null);
-            $this->redis->set("uid_{$uid}", JSON::serialize($user));
-
-            return Response::success(
-                new SigninResDto($uid, $user->get_nickname(), $token)
-            );
-        } else {
-            return Response::permission_denied('用户名或密码错误');
-        }
     }
 
     public function user_update(UserInfoDto $update_dto): ResponseModel {
