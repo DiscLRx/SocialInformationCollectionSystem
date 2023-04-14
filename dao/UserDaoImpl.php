@@ -36,6 +36,14 @@ class UserDaoImpl extends PDOExecutor implements UserDao {
     /**
      * @inheritDoc
      */
+    public function select_id_username(): array {
+        $stmt = $this->db->query('SELECT id, username FROM user');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function select_by_id(int $id): ?User {
         $stmt = $this->db->prepare('SELECT * FROM user WHERE id=:id');
         $stmt->bindParam('id', $id, PDO::PARAM_INT);

@@ -5,6 +5,8 @@ use dao\AnswerRecordDaoImpl;
 use dao\UserDao;
 use dao\UserDaoImpl;
 use dto\request\user\UserInfoDto;
+use dto\response\admin\UserBriefDto;
+use dto\response\admin\UserBriefListDto;
 use dto\response\user\AnsweredQnidDto;
 use entity\User;
 use framework\exception\DatabaseException;
@@ -16,6 +18,8 @@ use framework\util\JSON;
 require_once 'dao/UserDaoImpl.php';
 require_once 'dao/AnswerRecordDaoImpl.php';
 require_once 'dto/response/user/AnsweredQnidDto.php';
+require_once 'dto/response/admin/UserBriefDto.php';
+require_once 'dto/response/admin/UserBriefListDto.php';
 
 class UserService {
 
@@ -167,6 +171,13 @@ class UserService {
         $qnid_arr = $this->answer_record_dao->select_questionnaireid_by_userid($uid);
         $aqnid_dto = new AnsweredQnidDto($qnid_arr);
         return Response::success($aqnid_dto);
+    }
+
+    public function get_all_user_brief(): ResponseModel{
+        $map_arr = $this->user_dao->select_id_username();
+        $ublist_arr = array_map(fn($map) => new UserBriefDto($map['id'], $map['username']), $map_arr);
+        $ublist_dto = new UserBriefListDto($ublist_arr);
+        return Response::success($ublist_dto);
     }
 
 }

@@ -16,8 +16,8 @@
     "path": "controller/admin/AdminController.php"
   },
   {
-    "name": "admin\\UserController",
-    "path": "controller/admin/UserController.php"
+    "name": "admin\\UserManageController",
+    "path": "controller/admin/UserManageController.php"
   },
   {
     "name": "admin\\QuestionnnairesController",

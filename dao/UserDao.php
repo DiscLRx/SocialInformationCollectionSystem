@@ -24,6 +24,13 @@ interface UserDao {
      */
     public function select_by_id(int $id): ?User;
 
+
+    /**
+     * 获取所有用户的用户id和用户名
+     * @return array    包含用户id与用户名关联数组的array
+     */
+    public function select_id_username(): array;
+
     /**
      * 根据用户名查询用户
      * @param string $username  用户名

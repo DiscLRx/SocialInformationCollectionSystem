@@ -10,7 +10,7 @@
     "user\\QuestionnnaireAnswerController",
     "user\\UserController",
     "admin\\AdminController",
-    "admin\\UserController",
+    "admin\\UserManageController",
     "admin\\QuestionnnairesController"
   ]
 }
