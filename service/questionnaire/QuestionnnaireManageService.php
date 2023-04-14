@@ -1,8 +1,10 @@
 <?php
 
+namespace service\questionnaire;
+
 use common\QuestionnaireBasicService;
-use dto\response\user\QuestionnaireListDto;
 use dto\request\user\QuestionnaireCreateDto;
+use dto\response\user\QuestionnaireListDto;
 use dto\universal\OptionInfoDto;
 use dto\universal\QuestionInfoDto;
 use dto\universal\QuestionnaireDetailDto;
@@ -23,7 +25,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
         parent::__construct();
     }
 
-    public function get_questionnnaire_list(): ResponseModel{
+    public function get_questionnnaire_list(): ResponseModel {
         $uid = $GLOBALS['USER']->get_id();
         $questionnaire_arr = $this->questionnaire_dao->select_by_userid($uid);
         return Response::success(new QuestionnaireListDto($questionnaire_arr));
@@ -38,7 +40,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
             $qn_dto->get_begin_date(),
             $qn_dto->get_end_date()
         );
-        if ($qnid === 0){
+        if ($qnid === 0) {
             throw new DatabaseException("问卷表插入失败");
         }
         $q_arr = $qn_dto->get_question();
@@ -49,7 +51,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
                 $q->get_type(),
                 $q->get_content()
             );
-            if ($qid === 0){
+            if ($qid === 0) {
                 throw new DatabaseException("问题表插入失败");
             }
             $o_arr = $q->get_option();
@@ -59,7 +61,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
                     $o->get_order(),
                     $o->get_content()
                 );
-                if ($oid === 0){
+                if ($oid === 0) {
                     throw new DatabaseException("选项表插入失败");
                 }
             }
@@ -71,11 +73,11 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
     public function get_questionnnaire_detail(int $qnid): ResponseModel {
 
         $qn = $this->get_questionnaire($qnid);
-        if ($qn instanceof ResponseModel){
+        if ($qn instanceof ResponseModel) {
             return $qn;
         }
 
-        if ($qn->get_user_id()!==$GLOBALS['USER']->get_id()){
+        if ($qn->get_user_id() !== $GLOBALS['USER']->get_id()) {
             Response::permission_denied();
         }
 
@@ -109,23 +111,23 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
     public function update_questionnnaire(int $qnid, QuestionnaireCreateDto $qn_dto): ResponseModel {
 
         $qn = $this->get_questionnaire($qnid);
-        if ($qn instanceof ResponseModel){
+        if ($qn instanceof ResponseModel) {
             return $qn;
         }
 
         $uid = $GLOBALS['USER']->get_id();
-        if ($uid!==$qn->get_user_id()){
+        if ($uid !== $qn->get_user_id()) {
             return Response::permission_denied();
         }
 
         //问卷开始后不允许修改
-        if (Time::ts_after($qn->get_begin_date(), second: 5)<=Time::current_ts()){
+        if (Time::ts_after($qn->get_begin_date(), second: 5) <= Time::current_ts()) {
             return Response::reject_request("不允许修改已开始的问卷");
         }
 
         //删除已有问卷,重新创建
         $line = $this->questionnaire_dao->delete_by_id($qnid);
-        if ($line!==1){
+        if ($line !== 1) {
             throw new DatabaseException("删除问卷失败, qnid:{$qnid}");
         }
         $this->redis->del("qnid_{$qnid}");

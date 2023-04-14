@@ -1,7 +1,15 @@
 <?php
 
 
+namespace service\questionnaire;
+
 use common\QuestionnaireBasicService;
+use dao\AnswerRecordDao;
+use dao\AnswerRecordDaoImpl;
+use dao\ChoiceAnswerDao;
+use dao\ChoiceAnswerDaoImpl;
+use dao\TextAnswerDao;
+use dao\TextAnswerDaoImpl;
 use dto\request\user\QuestionnaireAnswerDto;
 use dto\response\user\QuestionnaireContentDto;
 use dto\universal\OptionInfoDto;
@@ -10,12 +18,6 @@ use entity\Question;
 use framework\exception\DatabaseException;
 use framework\response\Response;
 use framework\response\ResponseModel;
-use dao\ChoiceAnswerDao;
-use dao\ChoiceAnswerDaoImpl;
-use dao\TextAnswerDao;
-use dao\TextAnswerDaoImpl;
-use dao\AnswerRecordDao;
-use dao\AnswerRecordDaoImpl;
 
 require_once 'dao/QuestionnaireDaoImpl.php';
 require_once 'dao/QuestionDaoImpl.php';
@@ -69,13 +71,13 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
         return Response::success($qn_content_dto);
     }
 
-    public function submit_answer(QuestionnaireAnswerDto $qna_dto): ResponseModel{
+    public function submit_answer(QuestionnaireAnswerDto $qna_dto): ResponseModel {
 
         $uid = $GLOBALS['USER']->get_id();
         $qnid = $qna_dto->get_id();
 
         $answer_record = $this->answer_record_dao->count_by_userid_questionnaireid($uid, $qnid);
-        if ($answer_record===1){
+        if ($answer_record === 1) {
             return Response::reject_request();
         }
 
@@ -84,33 +86,33 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
         $this->choice_answer_dao->start_transaction();
         foreach ($qna_dto->get_answers() as $qa_dto) {
             $question = $this->get_question_by_order($question_arr, $qa_dto->get_order());
-            if (!isset($question)){
+            if (!isset($question)) {
                 $this->choice_answer_dao->rollback();
                 return Response::invalid_argument();
             }
-            $ret = match($question->get_type()){
-                'single'=>$this->single_type_handler(
+            $ret = match ($question->get_type()) {
+                'single' => $this->single_type_handler(
                     $question->get_option_arr(),
                     $qa_dto->get_answer(),
                     $uid),
-                'multi'=>$this->multi_type_handler(
+                'multi' => $this->multi_type_handler(
                     $question->get_option_arr(),
                     $qa_dto->get_answer(),
                     $uid),
-                'text'=>$this->text_type_handler(
+                'text' => $this->text_type_handler(
                     $question->get_id(),
                     $qa_dto->get_answer(),
                     $uid
                 ),
                 default => false
             };
-            if (!$ret){
+            if (!$ret) {
                 $this->choice_answer_dao->rollback();
                 return Response::invalid_argument();
             }
         }
         $ret = $this->answer_record_dao->insert($uid, $qnid);
-        if ($ret!==1){
+        if ($ret !== 1) {
             $this->text_answer_dao->close();
             throw new DatabaseException('插入问卷作答记录失败');
         }
@@ -118,36 +120,36 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
         return Response::success();
     }
 
-    private function single_type_handler(array $option_arr, array $answer, $uid): bool{
-        if (count($answer)!==1){
+    private function single_type_handler(array $option_arr, array $answer, $uid): bool {
+        if (count($answer) !== 1) {
             return false;
         }
         $order = array_pop($answer);
         foreach ($option_arr as $option) {
-            if ($option->get_order() === $order){
+            if ($option->get_order() === $order) {
                 $target_option = $option;
                 break;
             }
         }
-        if (!isset($target_option)){
+        if (!isset($target_option)) {
             return false;
         }
         $ret = $this->choice_answer_dao->insert($target_option->get_id(), $uid);
-        if ($ret!==1){
+        if ($ret !== 1) {
             $this->text_answer_dao->close();
             throw new DatabaseException('插入单选题作答记录失败');
         }
         return true;
     }
 
-    private function multi_type_handler(array $option_arr, array $answer, $uid): bool{
+    private function multi_type_handler(array $option_arr, array $answer, $uid): bool {
         foreach ($answer as $order) {
             $order_exist = false;
             foreach ($option_arr as $index => $option) {
                 if ($option->get_order() === $order) {
                     $order_exist = true;
                     $ret = $this->choice_answer_dao->insert($option->get_id(), $uid);
-                    if ($ret!==1){
+                    if ($ret !== 1) {
                         $this->text_answer_dao->close();
                         throw new DatabaseException('插入多选题作答记录失败');
                     }
@@ -155,19 +157,19 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
                     break;
                 }
             }
-            if (!$order_exist){
+            if (!$order_exist) {
                 return false;
             }
         }
         return true;
     }
 
-    private function text_type_handler(int $question_id, array $answer, int $uid): bool{
-        if (count($answer)!==1){
+    private function text_type_handler(int $question_id, array $answer, int $uid): bool {
+        if (count($answer) !== 1) {
             return false;
         }
         $ret = $this->text_answer_dao->insert($question_id, $uid, array_pop($answer));
-        if ($ret!==1){
+        if ($ret !== 1) {
             $this->text_answer_dao->close();
             throw new DatabaseException('插入填空题作答记录失败');
         }
@@ -175,8 +177,8 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
     }
 
     private function get_question_by_order(array &$question_arr, int $order): ?Question {
-        foreach ($question_arr as $index=>$q) {
-            if ($q->get_order()===$order){
+        foreach ($question_arr as $index => $q) {
+            if ($q->get_order() === $order) {
                 unset($question_arr[$index]);
                 return $q;
             }

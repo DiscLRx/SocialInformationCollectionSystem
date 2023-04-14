@@ -8,10 +8,10 @@ use framework\RequestMapping;
 use framework\response\Response;
 use framework\response\ResponseModel;
 use framework\util\JSON;
-use QuestionnnaireAnswerService;
 use security\RequireAuthority;
+use service\questionnaire\QuestionnnaireAnswerService;
 
-require_once 'service/user/QuestionnnaireAnswerService.php';
+require_once 'service/questionnaire/QuestionnnaireAnswerService.php';
 require_once 'dto/request/user/QuestionnaireAnswerDto.php';
 require_once 'dto/request/user/QuestionAnswerDto.php';
 

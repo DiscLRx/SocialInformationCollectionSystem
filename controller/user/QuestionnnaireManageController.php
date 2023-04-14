@@ -10,10 +10,10 @@ use framework\RequestMapping;
 use framework\response\Response;
 use framework\response\ResponseModel;
 use framework\util\JSON;
-use QuestionnnaireManageService;
 use security\RequireAuthority;
+use service\questionnaire\QuestionnnaireManageService;
 
-require_once 'service/user/QuestionnnaireManageService.php';
+require_once 'service/questionnaire/QuestionnnaireManageService.php';
 require_once 'dto/request/user/QuestionnaireCreateDto.php';
 require_once 'dto/common/QuestionInfoDto.php';
 require_once 'dto/common/OptionInfoDto.php';
