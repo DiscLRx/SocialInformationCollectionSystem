@@ -63,7 +63,7 @@ class QuestionnaireDetailDto {
         return $this->question;
     }
 
-    public function set_question_(array $question): void {
+    public function set_question(array $question): void {
         $this->question = $question;
     }
 }
