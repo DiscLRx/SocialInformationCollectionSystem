@@ -39,7 +39,7 @@ class UserService {
         $nickname = trim($signup_dto->get_nickname(), ' ');
         $phone = trim($signup_dto->get_phone(), ' ');
 
-        if (empty($username) || empty($password) || empty($nickname) || empty($phone)){
+        if (empty($username) || empty($password) || empty($nickname) || empty($phone)) {
             return Response::invalid_argument();
         }
 
@@ -95,70 +95,41 @@ class UserService {
         return !$flag;
     }
 
-    public function user_update(UserInfoDto $update_dto): ResponseModel {
+    public function user_update(User $user): ResponseModel {
 
-        $username = trim($update_dto->get_username(), ' ');
-        $password = trim($update_dto->get_password(), ' ');
-        $nickname = trim($update_dto->get_nickname(), ' ');
-        $phone = trim($update_dto->get_phone(), ' ');
+        $username = trim($user->get_username(), ' ');
+        $password = is_null($user->get_password()) ? null : trim($user->get_password(), ' ');
+        $nickname = trim($user->get_nickname(), ' ');
+        $phone = trim($user->get_phone(), ' ');
+        $enable = $user->is_enable();
 
         $check_ret =
             $this->username_check($username) &&
-            $this->password_check($password) &&
             $this->nickame_check($nickname) &&
             $this->phone_check($phone);
+        if (!is_null($password)){
+            $check_ret = $check_ret && $this->password_check($password);
+        }
         if (!$check_ret) {
             return Response::invalid_argument();
         }
 
         $auth_user = $GLOBALS['USER'];
         $search_user = $this->user_dao->select_by_username($username);
-        if (isset($search_user) && $search_user->get_username()!==$auth_user->get_username()) {
+        if (isset($search_user) && $search_user->get_username() !== $auth_user->get_username()) {
             return Response::invalid_argument('用户名已存在');
         }
 
-        $diff = false;
-
         $uid = $auth_user->get_id();
-        if (empty($username)){
-            $username = $auth_user->get_password();
+
+        if (is_null($password)) {
+            $this->user_dao->update_by_id_ex_password($uid, $username, $nickname, $phone, "User", $enable);
         } else {
-            if (!$this->username_check($username)){
-                return Response::invalid_argument();
-            }
-            $diff = true;
-        }
-        if (empty($nickname)){
-            $nickname = $auth_user->get_nickname();
-        } else {
-            if (!$this->nickame_check($nickname)){
-                return Response::invalid_argument();
-            }
-            $diff = true;
-        }
-        if (empty($phone)){
-            $phone = $auth_user->phone();
-        } else {
-            if (!$this->phone_check($phone)){
-                return Response::invalid_argument();
-            }
-            $diff = true;
-        }
-        if (empty($password)){
-            $line = $this->user_dao->update_by_id_ex_password($uid, $username, $nickname, $phone, "User", true);
-        } else {
-            if (!$this->password_check($password)){
-                return Response::invalid_argument();
-            }
-            $diff = true;
             $password = password_hash($password, PASSWORD_ARGON2ID);
-            $line = $this->user_dao->update_by_id($uid, $username, $password, $nickname, $phone, "User", true);
-        }
-        if ($diff && $line !== 1) {
-            return Response::unknown_error();
+            $this->user_dao->update_by_id($uid, $username, $password, $nickname, $phone, "User", $enable);
         }
 
-        $user = new User($uid, $username, null, $nickname, $phone, "User", true);
+        $user = new User($uid, $username, null, $nickname, $phone, "User", $enable);
         $this->redis->set("uid_{$uid}", JSON::serialize($user));
 
         return Response::success();
@@ -171,7 +142,7 @@ class UserService {
         return Response::success($aqnid_dto);
     }
 
-    public function get_all_users(): ResponseModel{
+    public function get_all_users(): ResponseModel {
         $user_arr = $this->user_dao->select();
         $umd_arr = array_map(
             fn($user) => new UserManageDisplayDto(
@@ -180,7 +151,7 @@ class UserService {
                 $user->get_nickname(),
                 $user->get_phone(),
                 $user->is_enable()
-            ) ,$user_arr);
+            ), $user_arr);
         return Response::success($umd_arr);
     }
 

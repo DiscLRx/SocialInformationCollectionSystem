@@ -5,10 +5,10 @@ namespace dto\request\user;
 class UserInfoDto {
     private string $username;
     private string $nickname;
-    private string $password;
+    private ?string $password;
     private string $phone;
 
-    public function __construct(string $username, string $nickname, string $password, string $phone) {
+    public function __construct(string $username, string $nickname, ?string $password, string $phone) {
         $this->username = $username;
         $this->nickname = $nickname;
         $this->password = $password;
@@ -31,11 +31,11 @@ class UserInfoDto {
         $this->nickname = $nickname;
     }
 
-    public function get_password(): string {
+    public function get_password(): ?string {
         return $this->password;
     }
 
-    public function set_password(string $password): void {
+    public function set_password(?string $password): void {
         $this->password = $password;
     }
 

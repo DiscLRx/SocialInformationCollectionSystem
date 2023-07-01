@@ -5,6 +5,7 @@ namespace user;
 use common\AuthenticationService;
 use dto\request\user\UserInfoDto;
 use dto\request\user\SigninReqDto;
+use entity\User;
 use framework\exception\JSONSerializeException;
 use framework\RequestMapping;
 use framework\response\Response;
@@ -56,13 +57,22 @@ class UserController {
         try {
             $update_dto = JSON::unserialize($body, UserInfoDto::class);
         } catch (JSONSerializeException) {
-            echo 'a';
             return Response::invalid_argument();
         }
-        if (intval($uri_arr[2]) !== $GLOBALS['USER']->get_id()) {
+        $uid = $GLOBALS['USER']->get_id();
+        if (intval($uri_arr[2]) !== $uid) {
             return Response::permission_denied();
         }
-        return $this->user_service->user_update($update_dto);
+        $user = new User(
+            $uid,
+            $update_dto->get_username(),
+            $update_dto->get_password(),
+            $update_dto->get_nickname(),
+            $update_dto->get_phone(),
+            'User',
+            $GLOBALS['USER']->is_enable()
+        );
+        return $this->user_service->user_update($user);
     }
 
     #[RequestMapping('GET', '/user-api/users/*/answered')]
