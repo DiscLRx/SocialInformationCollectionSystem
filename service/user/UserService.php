@@ -5,8 +5,7 @@ use dao\AnswerRecordDaoImpl;
 use dao\UserDao;
 use dao\UserDaoImpl;
 use dto\request\user\UserInfoDto;
-use dto\response\admin\UserBriefDto;
-use dto\response\admin\UserBriefListDto;
+use dto\response\admin\UserManageDisplayDto;
 use dto\response\user\AnsweredQnidDto;
 use entity\User;
 use framework\exception\DatabaseException;
@@ -18,8 +17,7 @@ use framework\util\JSON;
 require_once 'dao/UserDaoImpl.php';
 require_once 'dao/AnswerRecordDaoImpl.php';
 require_once 'dto/response/user/AnsweredQnidDto.php';
-require_once 'dto/response/admin/UserBriefDto.php';
-require_once 'dto/response/admin/UserBriefListDto.php';
+require_once 'dto/response/admin/UserManageDisplayDto.php';
 
 class UserService {
 
@@ -173,11 +171,17 @@ class UserService {
         return Response::success($aqnid_dto);
     }
 
-    public function get_all_user_brief(): ResponseModel{
-        $map_arr = $this->user_dao->select_id_username();
-        $ublist_arr = array_map(fn($map) => new UserBriefDto($map['id'], $map['username']), $map_arr);
-        $ublist_dto = new UserBriefListDto($ublist_arr);
-        return Response::success($ublist_dto);
+    public function get_all_users(): ResponseModel{
+        $user_arr = $this->user_dao->select();
+        $umd_arr = array_map(
+            fn($user) => new UserManageDisplayDto(
+                $user->get_id(),
+                $user->get_username(),
+                $user->get_nickname(),
+                $user->get_phone(),
+                $user->is_enable()
+            ) ,$user_arr);
+        return Response::success($umd_arr);
     }
 
 }

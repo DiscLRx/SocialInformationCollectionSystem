@@ -20,8 +20,8 @@ class UserManageController {
 
     #[RequestMapping('GET', '/admin-api/users')]
     #[RequireAuthority('Admin')]
-    public function get_all_user_brief($uri_arr, $uri_query_map, $body) : ResponseModel{
-        return $this->user_service->get_all_user_brief();
+    public function get_all_users($uri_arr, $uri_query_map, $body) : ResponseModel{
+        return $this->user_service->get_all_users();
     }
 
 }

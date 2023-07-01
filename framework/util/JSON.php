@@ -10,8 +10,11 @@ use ReflectionObject;
 
 class JSON {
 
-    public static function serialize(object $obj): string {
+    public static function serialize(object|array $obj): string {
         try {
+            if (is_array($obj)){
+                return self::get_value_by_type($obj);
+            }
             return self::__serialize__($obj);
         } catch (Exception|Error $e) {
             $jse = new JSONSerializeException("序列化对象失败");
