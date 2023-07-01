@@ -111,7 +111,7 @@ final class Core {
     private function basic_setting($app_env_config): void {
         set_error_handler(function ($err_code, $err_str, $err_file, $err_line) {
             throw new ErrorException($err_code, $err_str, $err_file, $err_line);
-        }, E_ERROR | E_WARNING);
+        }, E_ERROR | E_WARNING | E_DEPRECATED);
         try {
             $this->load_app_config($app_env_config);
         } catch (Exception|Error $e) {
