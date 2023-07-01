@@ -52,8 +52,7 @@ class UserService {
             return Response::invalid_argument();
         }
 
-        $user = $this->user_dao->select_by_username($username);
-        if (isset($user)) {
+        if ($this->username_exists($username)) {
             return Response::invalid_argument('用户名已存在');
         }
 
@@ -95,7 +94,12 @@ class UserService {
         return !$flag;
     }
 
-    public function user_update(User $user): ResponseModel {
+    private function username_exists($username): bool {
+        $search_user = $this->user_dao->select_by_username($username);
+        return isset($search_user);
+    }
+
+    public function user_update(User $user, ?User $old_user = null): ResponseModel {
 
         $username = trim($user->get_username(), ' ');
         $password = is_null($user->get_password()) ? null : trim($user->get_password(), ' ');
@@ -114,13 +118,22 @@ class UserService {
             return Response::invalid_argument();
         }
 
-        $auth_user = $GLOBALS['USER'];
-        $search_user = $this->user_dao->select_by_username($username);
-        if (isset($search_user) && $search_user->get_username() !== $auth_user->get_username()) {
-            return Response::invalid_argument('用户名已存在');
+        if ($old_user == null){
+            $auth_user = $GLOBALS['USER'];
+            if ($user->get_username() !== $auth_user->get_username()){
+                if ($this->username_exists($username)) {
+                    return Response::invalid_argument('用户名已存在');
+                }
+            }
+        } else {
+            if ($user->get_username() !== $old_user->get_username()){
+                if ($this->username_exists($username)) {
+                    return Response::invalid_argument('用户名已存在');
+                }
+            }
         }
 
-        $uid = $auth_user->get_id();
+        $uid = $user->get_id();
 
         if (is_null($password)) {
             $this->user_dao->update_by_id_ex_password($uid, $username, $nickname, $phone, "User", $enable);
@@ -133,6 +146,15 @@ class UserService {
         $this->redis->set("uid_{$uid}", JSON::serialize($user));
 
         return Response::success();
+    }
+
+    public function user_manage_update(User $user): ResponseModel{
+        $uid = $user->get_id();
+        $old_user = $this->user_dao->select_by_id($uid);
+        if ($old_user === null){
+            return Response::invalid_argument();
+        }
+        return $this->user_update($user, $old_user);
     }
 
     public function get_answered_questionnaireid(): ResponseModel {
