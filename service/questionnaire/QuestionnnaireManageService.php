@@ -9,6 +9,7 @@ use dto\response\user\QuestionnaireListDto;
 use dto\universal\OptionInfoDto;
 use dto\universal\QuestionInfoDto;
 use dto\universal\QuestionnaireDetailDto;
+use entity\Questionnaire;
 use framework\exception\DatabaseException;
 use framework\response\Response;
 use framework\response\ResponseModel;
@@ -26,7 +27,12 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
         parent::__construct();
     }
 
-    public function get_questionnnaire_list(): ResponseModel {
+    public function get_questionnaire_list(): ResponseModel {
+        $questionnaire_arr = $this->questionnaire_dao->select();
+        return Response::success($questionnaire_arr);
+    }
+
+    public function get_questionnnaire_list_created_by_current_user(): ResponseModel {
         $uid = $GLOBALS['USER']->get_id();
         $questionnaire_arr = $this->questionnaire_dao->select_by_userid($uid);
         return Response::success(new QuestionnaireListDto($questionnaire_arr));

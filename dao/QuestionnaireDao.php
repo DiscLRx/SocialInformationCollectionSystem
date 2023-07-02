@@ -12,6 +12,12 @@ require_once 'entity/Questionnaire.php';
 interface QuestionnaireDao {
 
     /**
+     * 查询所有问卷
+     * @return array    问卷列表
+     */
+    public function select(): array;
+
+    /**
      * 根据问卷id查询问卷
      * @param int $id           问卷id
      * @return ?Questionnaire   查询到的Questionnaire对象

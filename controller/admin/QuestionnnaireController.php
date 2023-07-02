@@ -23,6 +23,12 @@ class QuestionnnaireController {
         $this->qm_service = new QuestionnnaireManageService();
     }
 
+    #[RequestMapping('GET', '/admin-api/questionnnaires')]
+    #[RequireAuthority('Admin')]
+    public function get_questionnaires($uri_arr, $uri_query_map, $body): ResponseModel{
+        return $this->qm_service->get_questionnaire_list();
+    }
+
 
     #[RequestMapping('PATCH', '/admin-api/questionnnaires/*')]
     #[RequireAuthority('Admin')]

@@ -29,7 +29,7 @@ class QuestionnnaireManageController {
     #[RequestMapping("GET", "/user-api/questionnnaires")]
     #[RequireAuthority('User')]
     public function get_questionnnaire_list($uri_arr, $uri_query_map, $body): ResponseModel {
-        return $this->qm_service->get_questionnnaire_list();
+        return $this->qm_service->get_questionnnaire_list_created_by_current_user();
     }
 
     #[RequestMapping("GET", "/user-api/questionnnaires/*")]
