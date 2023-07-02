@@ -32,7 +32,7 @@ class QuestionnnaireController {
 
     #[RequestMapping('PATCH', '/admin-api/questionnnaires/*')]
     #[RequireAuthority('Admin')]
-    public function disable_questionnaire($uri_arr, $uri_query_map, $body): ResponseModel{
+    public function set_questionnaire_enable($uri_arr, $uri_query_map, $body): ResponseModel{
         $qnid = $uri_arr[2];
         if (!is_numeric($qnid)){
             return Response::invalid_argument();
