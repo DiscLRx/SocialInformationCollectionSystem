@@ -5,11 +5,11 @@ namespace dto\request\admin;
 class UserManageUpdateDto {
     private string $username;
     private string $nickname;
-    private string $password;
+    private ?string $password;
     private string $phone;
     private bool $enable;
 
-    public function __construct(string $username, string $nickname, string $password, string $phone, bool $enable) {
+    public function __construct(string $username, string $nickname, ?string $password, string $phone, bool $enable) {
         $this->username = $username;
         $this->nickname = $nickname;
         $this->password = $password;
@@ -33,11 +33,11 @@ class UserManageUpdateDto {
         $this->nickname = $nickname;
     }
 
-    public function get_password(): string {
+    public function get_password(): ?string {
         return $this->password;
     }
 
-    public function set_password(string $password): void {
+    public function set_password(?string $password): void {
         $this->password = $password;
     }
 
