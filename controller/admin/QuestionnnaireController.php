@@ -29,6 +29,15 @@ class QuestionnnaireController {
         return $this->qm_service->get_questionnaire_list();
     }
 
+    #[RequestMapping('GET', '/admin-api/questionnnaires/*')]
+    #[RequireAuthority('Admin')]
+    public function get_questionnaire_details($uri_arr, $uri_query_map, $body): ResponseModel{
+        $qnid = $uri_arr[2];
+        if (!is_numeric($qnid)){
+            return Response::invalid_argument();
+        }
+        return $this->qm_service->admin_get_questionnaire_details(intval($qnid));
+    }
 
     #[RequestMapping('PATCH', '/admin-api/questionnnaires/*')]
     #[RequireAuthority('Admin')]

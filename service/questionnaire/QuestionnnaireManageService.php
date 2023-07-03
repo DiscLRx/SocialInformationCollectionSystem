@@ -77,17 +77,33 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
         return Response::success();
     }
 
-    public function get_questionnnaire_detail(int $qnid): ResponseModel {
+    public function user_get_questionnaire_details(int $qnid): ResponseModel {
 
         $qn = $this->get_questionnaire($qnid);
-        if ($qn instanceof ResponseModel) {
-            return $qn;
+        if ($qn === 21) {
+            return Response::invalid_argument();
         }
 
         if ($qn->get_user_id() !== $GLOBALS['USER']->get_id()) {
-            Response::permission_denied();
+            return Response::permission_denied();
         }
 
+        $dto = $this->generate_questionnaire_detail_dto($qn);
+        return Response::success($dto);
+    }
+
+    public function admin_get_questionnaire_details(int $qnid): ResponseModel {
+
+        $qn = $this->get_questionnaire($qnid);
+        if ($qn === 21) {
+            return Response::invalid_argument();
+        }
+
+        $dto = $this->generate_questionnaire_detail_dto($qn);
+        return Response::success($dto);
+    }
+
+    public function generate_questionnaire_detail_dto(Questionnaire $qn): QuestionnaireDetailDto {
         $qn_detail_dto = new QuestionnaireDetailDto(
             $qn->get_id(),
             $qn->get_title(),
@@ -111,8 +127,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
             );
         }, $qn->get_question_arr());
         $qn_detail_dto->set_question($q_dto_arr);
-
-        return Response::success($qn_detail_dto);
+        return $qn_detail_dto;
     }
 
     public function update_questionnnaire(int $qnid, QuestionnaireCreateDto $qn_dto): ResponseModel {

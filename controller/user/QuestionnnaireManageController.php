@@ -39,7 +39,7 @@ class QuestionnnaireManageController {
         if (!is_numeric($qnid)){
             return Response::invalid_argument();
         }
-        return $this->qm_service->get_questionnnaire_detail(intval($qnid));
+        return $this->qm_service->user_get_questionnaire_details(intval($qnid));
     }
 
     #[RequestMapping("POST", "/user-api/questionnnaires")]
