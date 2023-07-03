@@ -48,7 +48,7 @@ class UserController {
         } catch (JSONSerializeException) {
             return Response::invalid_argument();
         }
-        return $this->auth_service->signin($signin_dto);
+        return $this->auth_service->user_signin($signin_dto);
     }
 
     #[RequestMapping('PUT', '/user-api/users/*')]

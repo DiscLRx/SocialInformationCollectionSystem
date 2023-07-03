@@ -30,6 +30,6 @@ class AdminController  {
         } catch (JSONSerializeException) {
             return Response::invalid_argument();
         }
-        return $this->auth_service->signin($signin_dto);
+        return $this->auth_service->admin_signin($signin_dto);
     }
 }
