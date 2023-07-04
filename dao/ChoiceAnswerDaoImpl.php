@@ -46,6 +46,7 @@ class ChoiceAnswerDaoImpl extends PDOExecutor implements ChoiceAnswerDao {
             'SELECT `option`.* FROM `option`, choice_answer WHERE choice_answer.user_id=:user_id AND `option`.id=choice_answer.option_id'
         );
         $stmt->bindParam('user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
         $fetch_ret = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function ($item) {
             return new Option(
@@ -55,6 +56,19 @@ class ChoiceAnswerDaoImpl extends PDOExecutor implements ChoiceAnswerDao {
                 $item['content']
             );
         }, $fetch_ret);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function count_by_optionid($option_id): int {
+        $stmt = $this->db->prepare(
+            'SELECT count(*) as `count` FROM choice_answer WHERE option_id=:option_id'
+        );
+        $stmt->bindParam('option_id', $option_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $fetch_ret = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $fetch_ret['count'];
     }
 
     /**

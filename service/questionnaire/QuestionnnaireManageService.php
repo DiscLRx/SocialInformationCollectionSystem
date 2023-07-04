@@ -3,9 +3,18 @@
 namespace service\questionnaire;
 
 use common\QuestionnaireBasicService;
+use dao\AnswerRecordDao;
+use dao\AnswerRecordDaoImpl;
+use dao\ChoiceAnswerDao;
+use dao\ChoiceAnswerDaoImpl;
+use dao\TextAnswerDao;
+use dao\TextAnswerDaoImpl;
 use dto\request\admin\EnableDto;
 use dto\request\user\QuestionnaireCreateDto;
+use dto\response\user\OptionStatisticsDto;
 use dto\response\user\QuestionnaireListDto;
+use dto\response\user\QuestionnaireStatisticsDto;
+use dto\response\user\QuestionStatisticsDto;
 use dto\universal\OptionInfoDto;
 use dto\universal\QuestionInfoDto;
 use dto\universal\QuestionnaireDetailDto;
@@ -19,13 +28,27 @@ require_once 'dto/response/user/QuestionnaireListDto.php';
 require_once 'dto/common/QuestionnaireDetailDto.php';
 require_once 'dto/common/QuestionInfoDto.php';
 require_once 'dto/common/OptionInfoDto.php';
+require_once 'dto/response/user/QuestionnaireStatisticsDto.php';
+require_once 'dto/response/user/QuestionStatisticsDto.php';
+require_once 'dto/response/user/OptionStatisticsDto.php';
 require_once 'service/common/QuestionnaireBasicService.php';
+require_once 'dao/ChoiceAnswerDaoImpl.php';
+require_once 'dao/TextAnswerDaoImpl.php';
+require_once 'dao/AnswerRecordDaoImpl.php';
 
 class QuestionnnaireManageService extends QuestionnaireBasicService {
 
+    private ChoiceAnswerDao $choice_answer_dao;
+    private TextAnswerDao $text_answer_dao;
+    private AnswerRecordDao $answer_record_dao;
+
     public function __construct() {
         parent::__construct();
+        $this->choice_answer_dao = new ChoiceAnswerDaoImpl();
+        $this->text_answer_dao = new TextAnswerDaoImpl();
+        $this->answer_record_dao = new AnswerRecordDaoImpl();
     }
+
 
     public function get_questionnaire_list(): ResponseModel {
         $questionnaire_arr = $this->questionnaire_dao->select();
@@ -160,6 +183,56 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
         $this->questionnaire_dao->update_enable_by_id($qnid, $enable_dto->is_enable());
         $this->redis->del("qnid_{$qnid}");
         return Response::success();
+    }
+
+    public function get_questionnnaire_statistics($qnid): ResponseModel{
+
+        $auth_uid = $GLOBALS['USER']->get_id();
+        $qn = $this->questionnaire_dao->select_by_id($qnid);
+        if (!isset($qn) || $qn->get_user_id()!==$auth_uid){
+            return Response::reject_request();
+        }
+
+        $qn_st_dto = new QuestionnaireStatisticsDto(
+            $qn->get_title(),
+            $this->answer_record_dao->count_by_questionnaireid($qnid)
+        );
+
+        $q_st_dto_arr = [];
+        $question_arr = $this->question_dao->select_by_questionnaireid($qnid);
+        foreach ($question_arr as $question){
+            $q_st_dto = new QuestionStatisticsDto(
+                $question->get_order(),
+                $question->get_type(),
+                $question->get_content()
+            );
+
+            $qid = $question->get_id();
+            if ($question->get_type() === 'text') {
+                $text_answer_arr = $this->text_answer_dao->select_by_questionid($qid);
+                $text_arr = array_map(fn ($ta) => $ta->get_text(), $text_answer_arr);
+                $q_st_dto->set_answers($text_arr);
+            } else {
+                $o_st_dto_arr = [];
+                $option_arr = $this->option_dao->select_by_questionid($qid);
+                foreach ($option_arr as $option){
+                    $oid = $option->get_id();
+                    $o_st_dto = new OptionStatisticsDto(
+                        $option->get_order(),
+                        $option->get_content(),
+                        $this->choice_answer_dao->count_by_optionid($oid)
+                    );
+                    $o_st_dto_arr[] = $o_st_dto;
+                }
+                $q_st_dto->set_answers($o_st_dto_arr);
+            }
+            $q_st_dto_arr[] = $q_st_dto;
+        }
+
+        $qn_st_dto->set_question($q_st_dto_arr);
+
+        return Response::success($qn_st_dto);
+
     }
 
 }

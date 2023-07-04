@@ -25,6 +25,13 @@ interface ChoiceAnswerDao {
     public function select_option_by_userid(int $user_id): array;
 
     /**
+     * 根据选项id统计选择该选项的作答记录数量
+     * @param int $option_id    选项id
+     * @return int              选择该选项的作答记录数量
+     */
+    public function count_by_optionid(int $option_id): int;
+
+    /**
      * 新增选择题作答记录
      * @param int $option_id    选项id
      * @param int $user_id      用户id
