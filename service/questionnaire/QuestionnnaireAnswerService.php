@@ -47,6 +47,10 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
     public function get_content(int $qnid): ResponseModel {
         $qn = $this->get_questionnaire($qnid);
 
+        if (!isset($qn)) {
+            return Response::invalid_argument();
+        }
+
         if (!$qn->is_enable()) {
             return Response::reject_request();
         }
@@ -80,6 +84,10 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
         $uid = $GLOBALS['USER']->get_id();
         $qnid = $qna_dto->get_id();
         $qn = $this->get_questionnaire($qnid);
+
+        if (!isset($qn)) {
+            return Response::invalid_argument();
+        }
 
         if (!$qn->is_enable()) {
             return Response::reject_request();

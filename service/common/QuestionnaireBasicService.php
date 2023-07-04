@@ -33,12 +33,12 @@ class QuestionnaireBasicService {
         $this->redis = new RedisExecutor(1);
     }
 
-    protected function get_questionnaire(int $qnid): Questionnaire|int {
+    protected function get_questionnaire(int $qnid): ?Questionnaire {
         $qn_str = $this->redis->get("qnid_{$qnid}");
         if ($qn_str===false){
             $qn = $this->questionnaire_dao->select_by_id($qnid);
             if (!isset($qn)){
-                return 21;
+                return null;
             }
             $q_arr = $this->question_dao->select_by_questionnaireid($qnid);
 

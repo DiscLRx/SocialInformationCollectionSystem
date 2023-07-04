@@ -103,7 +103,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
     public function user_get_questionnaire_details(int $qnid): ResponseModel {
 
         $qn = $this->get_questionnaire($qnid);
-        if ($qn === 21) {
+        if (!isset($qn)) {
             return Response::invalid_argument();
         }
 
@@ -118,7 +118,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
     public function admin_get_questionnaire_details(int $qnid): ResponseModel {
 
         $qn = $this->get_questionnaire($qnid);
-        if ($qn === 21) {
+        if (!isset($qn)) {
             return Response::invalid_argument();
         }
 
@@ -156,8 +156,8 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
     public function update_questionnnaire(int $qnid, QuestionnaireCreateDto $qn_dto): ResponseModel {
 
         $qn = $this->get_questionnaire($qnid);
-        if ($qn instanceof ResponseModel) {
-            return $qn;
+        if (!isset($qn)) {
+            return Response::invalid_argument();
         }
 
         $uid = $GLOBALS['USER']->get_id();
