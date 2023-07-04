@@ -18,6 +18,7 @@ use entity\Question;
 use framework\exception\DatabaseException;
 use framework\response\Response;
 use framework\response\ResponseModel;
+use framework\util\Time;
 
 require_once 'dao/QuestionnaireDaoImpl.php';
 require_once 'dao/QuestionDaoImpl.php';
@@ -51,8 +52,15 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
             return Response::invalid_argument();
         }
 
+        $current_ts = Time::current_ts();
+        $begin_date = $qn->get_begin_date();
+        $end_date = $qn->get_end_date();
+        if ($current_ts < $begin_date || $current_ts > $end_date) {
+            return Response::invalid_argument('不在问卷有效期内');
+        }
+
         if (!$qn->is_enable()) {
-            return Response::reject_request();
+            return Response::reject_request('问卷不可用');
         }
 
         $qn_content_dto = new QuestionnaireContentDto(
@@ -89,8 +97,15 @@ class QuestionnnaireAnswerService extends QuestionnaireBasicService {
             return Response::invalid_argument();
         }
 
+        $current_ts = Time::current_ts();
+        $begin_date = $qn->get_begin_date();
+        $end_date = $qn->get_end_date();
+        if ($current_ts < $begin_date || $current_ts > $end_date) {
+            return Response::invalid_argument('不在问卷有效期内');
+        }
+
         if (!$qn->is_enable()) {
-            return Response::reject_request();
+            return Response::reject_request('问卷不可用');
         }
 
         $answer_record = $this->answer_record_dao->count_by_userid_questionnaireid($uid, $qnid);
