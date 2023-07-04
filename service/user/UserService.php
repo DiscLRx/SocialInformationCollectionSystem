@@ -4,7 +4,7 @@ use dao\AnswerRecordDao;
 use dao\AnswerRecordDaoImpl;
 use dao\UserDao;
 use dao\UserDaoImpl;
-use dto\request\user\UserInfoDto;
+use dto\universal\UserInfoDto;
 use dto\response\admin\UserManageDisplayDto;
 use dto\response\user\AnsweredQnidDto;
 use entity\User;
@@ -111,22 +111,22 @@ class UserService {
             $this->username_check($username) &&
             $this->nickame_check($nickname) &&
             $this->phone_check($phone);
-        if (!is_null($password)){
+        if (!is_null($password)) {
             $check_ret = $check_ret && $this->password_check($password);
         }
         if (!$check_ret) {
             return Response::invalid_argument();
         }
 
-        if ($old_user == null){
+        if ($old_user == null) {
             $auth_user = $GLOBALS['USER'];
-            if ($user->get_username() !== $auth_user->get_username()){
+            if ($user->get_username() !== $auth_user->get_username()) {
                 if ($this->username_exists($username)) {
                     return Response::invalid_argument('用户名已存在');
                 }
             }
         } else {
-            if ($user->get_username() !== $old_user->get_username()){
+            if ($user->get_username() !== $old_user->get_username()) {
                 if ($this->username_exists($username)) {
                     return Response::invalid_argument('用户名已存在');
                 }
@@ -148,10 +148,10 @@ class UserService {
         return Response::success();
     }
 
-    public function user_manage_update(User $user): ResponseModel{
+    public function user_manage_update(User $user): ResponseModel {
         $uid = $user->get_id();
         $old_user = $this->user_dao->select_by_id($uid);
-        if ($old_user === null){
+        if ($old_user === null) {
             return Response::invalid_argument();
         }
         return $this->user_update($user, $old_user);
@@ -178,11 +178,11 @@ class UserService {
     }
 
     public function get_user(int $uid): ResponseModel {
-        $user=$this->user_dao->select_by_id($uid);
-        if($user===null){
+        $user = $this->user_dao->select_by_id($uid);
+        if ($user === null) {
             return Response::invalid_argument();
         }
-        $user_dto=new UserInfoDto(
+        $user_dto = new UserInfoDto(
             $user->get_username(),
             $user->get_nickname(),
             null,

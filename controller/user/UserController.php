@@ -3,8 +3,8 @@
 namespace user;
 
 use common\AuthenticationService;
-use dto\common\UserInfoDto;
-use dto\common\SigninReqDto;
+use dto\universal\UserInfoDto;
+use dto\request\user\SigninReqDto;
 use entity\User;
 use framework\exception\JSONSerializeException;
 use framework\RequestMapping;
