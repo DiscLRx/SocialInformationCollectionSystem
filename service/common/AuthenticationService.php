@@ -6,6 +6,7 @@ use dao\UserDao;
 use dao\UserDaoImpl;
 use dto\request\user\SigninReqDto;
 use dto\response\user\SigninResDto;
+use entity\User;
 use framework\RedisExecutor;
 use framework\response\Response;
 use framework\response\ResponseModel;
@@ -28,50 +29,57 @@ class AuthenticationService {
     }
 
     public function admin_signin(SigninReqDto $signin_dto): ResponseModel {
-        $username = trim($signin_dto->get_username(), ' ');
-        $password = trim($signin_dto->get_password(), ' ');
-        $user = $this->user_dao->select_by_username($username);
-        if (!isset($user) || $user->get_authority() !== 'Admin') {
+        $user = $this->auth($signin_dto, 'Admin');
+        if (!isset($user)){
             return Response::permission_denied('用户名或密码错误');
         }
-        if (password_verify($password, $user->get_password())) {
-            return $this->get_response_on_success($user);
-        } else {
-            return Response::permission_denied('用户名或密码错误');
+        if (!$user->is_enable()){
+            return Response::permission_denied('用户不可用');
         }
-
+        return $this->on_success($user);
     }
 
     public function user_signin(SigninReqDto $signin_dto): ResponseModel {
+        $user = $this->auth($signin_dto, 'User');
+        if (!isset($user)){
+            return Response::permission_denied('用户名或密码错误');
+        }
+        if (!$user->is_enable()){
+            return Response::permission_denied('用户不可用');
+        }
+        return $this->on_success($user);
+    }
+
+    private function auth(SigninReqDto $signin_dto, string $authority): ?User{
         $username = trim($signin_dto->get_username(), ' ');
         $password = trim($signin_dto->get_password(), ' ');
         $user = $this->user_dao->select_by_username($username);
-        if (!isset($user)) {
-            return Response::permission_denied('用户名或密码错误');
+        if (!isset($user) || $user->get_authority() !== $authority) {
+            return null;
         }
-
-        if (password_verify($password, $user->get_password())) {
-            $user->set_password(null);
-            $this->redis->set("uid_{$user->get_id()}", JSON::serialize($user));
-            return $this->get_response_on_success($user);
-        } else {
-            return Response::permission_denied('用户名或密码错误');
+        if (!password_verify($password, $user->get_password())) {
+            return null;
         }
+        return $user;
     }
 
-
-    private function get_response_on_success($user): ResponseModel {
+    private function on_success($user): ResponseModel {
+        $user->set_password(null);
         $uid = $user->get_id();
+        $this->redis->set("uid_{$uid}", JSON::serialize($user));
+        $token = $this->get_token($uid);
+        return Response::success(
+            new SigninResDto($uid, $user->get_nickname(), $token)
+        );
+    }
+
+    private function get_token($uid): string {
         $jwt = (new TokenAuthConfigLoader())->get_jwt();
         $payload = array(
             "uid" => $uid,
             "ts" => Time::current_ts()
         );
-        $token = $jwt->create($payload);
-
-        return Response::success(
-            new SigninResDto($uid, $user->get_nickname(), $token)
-        );
+        return $jwt->create($payload);
     }
 
 }
