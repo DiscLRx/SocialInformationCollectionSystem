@@ -3,8 +3,8 @@
 namespace user;
 
 use common\AuthenticationService;
-use dto\request\user\UserInfoDto;
-use dto\request\user\SigninReqDto;
+use dto\common\UserInfoDto;
+use dto\common\SigninReqDto;
 use entity\User;
 use framework\exception\JSONSerializeException;
 use framework\RequestMapping;
@@ -14,7 +14,7 @@ use framework\util\JSON;
 use security\RequireAuthority;
 use UserService;
 
-require_once 'dto/request/user/UserInfoDto.php';
+require_once 'dto/common/UserInfoDto.php';
 require_once 'dto/request/user/SigninReqDto.php';
 require_once 'service/user/UserService.php';
 require_once 'service/common/AuthenticationService.php';
@@ -82,6 +82,16 @@ class UserController {
             return Response::permission_denied();
         }
         return $this->user_service->get_answered_questionnaireid();
+    }
+
+    #[RequestMapping('GET', '/user-api/users/*')]
+    #[RequireAuthority('User')]
+    public function get_user($uri_arr, $uri_query_map, $body): ResponseModel {    
+        $uid=intval($uri_arr[2]);
+        if (intval($uri_arr[2]) !== $GLOBALS['USER']->get_id()) {
+            return Response::permission_denied();
+        }
+        return $this->user_service->get_user($uid);
     }
 
 }
