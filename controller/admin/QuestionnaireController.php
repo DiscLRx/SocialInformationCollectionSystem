@@ -9,27 +9,27 @@ use framework\response\Response;
 use framework\response\ResponseModel;
 use framework\util\JSON;
 use security\RequireAuthority;
-use service\questionnaire\QuestionnnaireManageService;
+use service\questionnaire\QuestionnaireManageService;
 
 require_once 'dto/request/admin/EnableDto.php';
-require_once 'service/questionnaire/QuestionnnaireManageService.php';
+require_once 'service/questionnaire/QuestionnaireManageService.php';
 
 
-class QuestionnnaireController {
+class QuestionnaireController {
 
-    private QuestionnnaireManageService $qm_service;
+    private QuestionnaireManageService $qm_service;
 
     public function __construct() {
-        $this->qm_service = new QuestionnnaireManageService();
+        $this->qm_service = new QuestionnaireManageService();
     }
 
-    #[RequestMapping('GET', '/admin-api/questionnnaires')]
+    #[RequestMapping('GET', '/admin-api/questionnaires')]
     #[RequireAuthority('Admin')]
     public function get_questionnaires($uri_arr, $uri_query_map, $body): ResponseModel{
         return $this->qm_service->get_questionnaire_list();
     }
 
-    #[RequestMapping('GET', '/admin-api/questionnnaires/*')]
+    #[RequestMapping('GET', '/admin-api/questionnaires/*')]
     #[RequireAuthority('Admin')]
     public function get_questionnaire_details($uri_arr, $uri_query_map, $body): ResponseModel{
         $qnid = $uri_arr[2];
@@ -39,7 +39,7 @@ class QuestionnnaireController {
         return $this->qm_service->admin_get_questionnaire_details(intval($qnid));
     }
 
-    #[RequestMapping('PATCH', '/admin-api/questionnnaires/*')]
+    #[RequestMapping('PATCH', '/admin-api/questionnaires/*')]
     #[RequireAuthority('Admin')]
     public function set_questionnaire_enable($uri_arr, $uri_query_map, $body): ResponseModel{
         $qnid = $uri_arr[2];

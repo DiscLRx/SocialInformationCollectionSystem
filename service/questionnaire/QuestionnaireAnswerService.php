@@ -31,7 +31,7 @@ require_once 'dao/ChoiceAnswerDaoImpl.php';
 require_once 'dao/TextAnswerDaoImpl.php';
 require_once 'dao/AnswerRecordDaoImpl.php';
 
-class QuestionnnaireAnswerService extends QuestionnaireBasicService {
+class QuestionnaireAnswerService extends QuestionnaireBasicService {
 
     private ChoiceAnswerDao $choice_answer_dao;
     private TextAnswerDao $text_answer_dao;

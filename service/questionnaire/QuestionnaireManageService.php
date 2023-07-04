@@ -36,7 +36,7 @@ require_once 'dao/ChoiceAnswerDaoImpl.php';
 require_once 'dao/TextAnswerDaoImpl.php';
 require_once 'dao/AnswerRecordDaoImpl.php';
 
-class QuestionnnaireManageService extends QuestionnaireBasicService {
+class QuestionnaireManageService extends QuestionnaireBasicService {
 
     private ChoiceAnswerDao $choice_answer_dao;
     private TextAnswerDao $text_answer_dao;
@@ -55,13 +55,13 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
         return Response::success($questionnaire_arr);
     }
 
-    public function get_questionnnaire_list_created_by_current_user(): ResponseModel {
+    public function get_questionnaire_list_created_by_current_user(): ResponseModel {
         $uid = $GLOBALS['USER']->get_id();
         $questionnaire_arr = $this->questionnaire_dao->select_by_userid($uid);
         return Response::success(new QuestionnaireListDto($questionnaire_arr));
     }
 
-    public function create_questionnnaire(QuestionnaireCreateDto $qn_dto): ResponseModel {
+    public function create_questionnaire(QuestionnaireCreateDto $qn_dto): ResponseModel {
         $uid = $GLOBALS['USER']->get_id();
 
         $qnid = $this->questionnaire_dao->insert(
@@ -153,7 +153,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
         return $qn_detail_dto;
     }
 
-    public function update_questionnnaire(int $qnid, QuestionnaireCreateDto $qn_dto): ResponseModel {
+    public function update_questionnaire(int $qnid, QuestionnaireCreateDto $qn_dto): ResponseModel {
 
         $qn = $this->get_questionnaire($qnid);
         if (!isset($qn)) {
@@ -176,7 +176,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
             throw new DatabaseException("删除问卷失败, qnid:{$qnid}");
         }
         $this->redis->del("qnid_{$qnid}");
-        return $this->create_questionnnaire($qn_dto);
+        return $this->create_questionnaire($qn_dto);
     }
 
     public function set_enable(int $qnid, EnableDto $enable_dto): ResponseModel{
@@ -185,7 +185,7 @@ class QuestionnnaireManageService extends QuestionnaireBasicService {
         return Response::success();
     }
 
-    public function get_questionnnaire_statistics($qnid): ResponseModel{
+    public function get_questionnaire_statistics($qnid): ResponseModel{
 
         $auth_uid = $GLOBALS['USER']->get_id();
         $qn = $this->questionnaire_dao->select_by_id($qnid);

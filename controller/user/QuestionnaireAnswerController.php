@@ -9,21 +9,21 @@ use framework\response\Response;
 use framework\response\ResponseModel;
 use framework\util\JSON;
 use security\RequireAuthority;
-use service\questionnaire\QuestionnnaireAnswerService;
+use service\questionnaire\QuestionnaireAnswerService;
 
-require_once 'service/questionnaire/QuestionnnaireAnswerService.php';
+require_once 'service/questionnaire/QuestionnaireAnswerService.php';
 require_once 'dto/request/user/QuestionnaireAnswerDto.php';
 require_once 'dto/request/user/QuestionAnswerDto.php';
 
-class QuestionnnaireAnswerController {
+class QuestionnaireAnswerController {
 
-    private QuestionnnaireAnswerService $qa_service;
+    private QuestionnaireAnswerService $qa_service;
 
     public function __construct() {
-        $this->qa_service = new QuestionnnaireAnswerService();
+        $this->qa_service = new QuestionnaireAnswerService();
     }
 
-    #[RequestMapping('GET', '/user-api/questionnnaires/*/contents')]
+    #[RequestMapping('GET', '/user-api/questionnaires/*/contents')]
     #[RequireAuthority('User')]
     public function get_content($uri_arr, $uri_query_map, $body) : ResponseModel{
         $qnid = $uri_arr[2];
@@ -33,7 +33,7 @@ class QuestionnnaireAnswerController {
         return $this->qa_service->get_content(intval($qnid));
     }
 
-    #[RequestMapping('POST', '/user-api/questionnnaires/*/answer')]
+    #[RequestMapping('POST', '/user-api/questionnaires/*/answer')]
     #[RequireAuthority('User')]
     public function submit_answer($uri_arr, $uri_query_map, $body) : ResponseModel{
         $qna_dto = JSON::unserialize($body, QuestionnaireAnswerDto::class);

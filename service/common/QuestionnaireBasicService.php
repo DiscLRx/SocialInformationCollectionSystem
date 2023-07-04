@@ -52,12 +52,12 @@ class QuestionnaireBasicService {
 
             $this->redis->set("qnid_{$qnid}", JSON::serialize($qn));
         }else{
-            $qn = $this->unserialize_questionnnaire($qn_str);
+            $qn = $this->unserialize_questionnaire($qn_str);
         }
         return $qn;
     }
 
-    protected function unserialize_questionnnaire($json_str): Questionnaire{
+    protected function unserialize_questionnaire($json_str): Questionnaire{
         $qn = JSON::unserialize($json_str, Questionnaire::class);
         $q_arr = $qn->get_question_arr();
         $qn->set_question_arr(array_map(function ($q) {

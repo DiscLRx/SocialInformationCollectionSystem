@@ -1,11 +1,11 @@
 [
   {
-    "name": "user\\QuestionnnaireAnswerController",
-    "path": "controller/user/QuestionnnaireAnswerController.php"
+    "name": "user\\QuestionnaireAnswerController",
+    "path": "controller/user/QuestionnaireAnswerController.php"
   },
   {
-    "name": "user\\QuestionnnaireManageController",
-    "path": "controller/user/QuestionnnaireManageController.php"
+    "name": "user\\QuestionnaireManageController",
+    "path": "controller/user/QuestionnaireManageController.php"
   },
   {
     "name": "user\\UserController",
@@ -20,8 +20,8 @@
     "path": "controller/admin/UserManageController.php"
   },
   {
-    "name": "admin\\QuestionnnaireController",
-    "path": "controller/admin/QuestionnnaireController.php"
+    "name": "admin\\QuestionnaireController",
+    "path": "controller/admin/QuestionnaireController.php"
   },
   {
     "name": "security\\TokenAuthFilter",
