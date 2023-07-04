@@ -1,6 +1,6 @@
 <?php
 
-namespace dto\request\user;
+namespace dto\universal;
 
 class UserInfoDto {
     private string $username;

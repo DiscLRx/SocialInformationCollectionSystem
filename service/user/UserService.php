@@ -177,4 +177,18 @@ class UserService {
         return Response::success($umd_arr);
     }
 
+    public function get_user(int $uid): ResponseModel {
+        $user=$this->user_dao->select_by_id($uid);
+        if($user===null){
+            return Response::invalid_argument();
+        }
+        $user_dto=new UserInfoDto(
+            $user->get_username(),
+            $user->get_nickname(),
+            null,
+            $user->get_phone()
+        );
+        return Response::success($user_dto);
+    }
+
 }
