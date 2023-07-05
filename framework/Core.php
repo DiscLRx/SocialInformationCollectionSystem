@@ -245,12 +245,13 @@ final class Core {
                         }
 
                         // 替换请求uri的参数为 *
+                        $tmp_req_uri_arr = $req_uri_arr;
                         $keys = array_keys($attr_uri_arr, '*');
                         foreach ($keys as $key) {
-                            $req_uri_arr[$key] = '*';
+                            $tmp_req_uri_arr[$key] = '*';
                         }
 
-                        if ($req_uri_arr === $attr_uri_arr) {
+                        if ($tmp_req_uri_arr === $attr_uri_arr) {
                             return array($class_name, $method->getName());
                         }
                     }
