@@ -51,7 +51,7 @@ class UserController {
         return $this->auth_service->user_signin($signin_dto);
     }
 
-    #[RequestMapping('PUT', '/user-api/users/*')]
+    #[RequestMapping('PUT', '/user-api/users/current')]
     #[RequireAuthority('User')]
     public function update_user($uri_arr, $uri_query_map, $body): ResponseModel {
         try {
@@ -59,12 +59,8 @@ class UserController {
         } catch (JSONSerializeException) {
             return Response::invalid_argument();
         }
-        $uid = $GLOBALS['USER']->get_id();
-        if (intval($uri_arr[2]) !== $uid) {
-            return Response::permission_denied();
-        }
         $user = new User(
-            $uid,
+            $GLOBALS['USER']->get_id(),
             $update_dto->get_username(),
             $update_dto->get_password(),
             $update_dto->get_nickname(),
@@ -84,13 +80,10 @@ class UserController {
         return $this->user_service->get_answered_questionnaireid();
     }
 
-    #[RequestMapping('GET', '/user-api/users/*')]
+    #[RequestMapping('GET', '/user-api/users/current')]
     #[RequireAuthority('User')]
-    public function get_user($uri_arr, $uri_query_map, $body): ResponseModel {    
-        $uid=intval($uri_arr[2]);
-        if (intval($uri_arr[2]) !== $GLOBALS['USER']->get_id()) {
-            return Response::permission_denied();
-        }
+    public function get_user($uri_arr, $uri_query_map, $body): ResponseModel {
+        $uid = $GLOBALS['USER']->get_id();
         return $this->user_service->get_user($uid);
     }
 
