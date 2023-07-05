@@ -27,11 +27,11 @@ class Log {
     public static function multiline(array $items, int $pre_space = 8, ?callable $foreach_handler = null): void {
         foreach ($items as $index => $item) {
             $line = isset($foreach_handler) ? $foreach_handler($index, $item) : $item;
-            Log::nextline($line, $pre_space);
+            self::nextline($line, $pre_space);
         }
     }
 
-    public static function debug(string $msg): void {
+    public static function debug(string $msg, array $follow_items = null, int $pre_space = 8, ?callable $foreach_handler = null): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug" => false,
@@ -40,9 +40,12 @@ class Log {
             return;
         }
         self::log(LogLevel::DEBUG, $msg);
+        if (isset($follow_items)){
+            self::multiline($follow_items, $pre_space, $foreach_handler);
+        }
     }
 
-    public static function info(string $msg): void {
+    public static function info(string $msg, array $follow_items = null, int $pre_space = 8, ?callable $foreach_handler = null): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug", "info" => false,
@@ -51,9 +54,12 @@ class Log {
             return;
         }
         self::log(LogLevel::INFO, $msg);
+        if (isset($follow_items)){
+            self::multiline($follow_items, $pre_space, $foreach_handler);
+        }
     }
 
-    public static function warn(string $msg): void {
+    public static function warn(string $msg, array $follow_items = null, int $pre_space = 8, ?callable $foreach_handler = null): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug", "info", "warn" => false,
@@ -62,9 +68,12 @@ class Log {
             return;
         }
         self::log(LogLevel::WARN, $msg);
+        if (isset($follow_items)){
+            self::multiline($follow_items, $pre_space, $foreach_handler);
+        }
     }
 
-    public static function error(string $msg): void {
+    public static function error(string $msg, array $follow_items = null, int $pre_space = 8, ?callable $foreach_handler = null): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug", "info", "warn", "error" => false,
@@ -73,9 +82,12 @@ class Log {
             return;
         }
         self::log(LogLevel::ERROR, $msg);
+        if (isset($follow_items)){
+            self::multiline($follow_items, $pre_space, $foreach_handler);
+        }
     }
 
-    public static function fatal(string $msg): void {
+    public static function fatal(string $msg, array $follow_items = null, int $pre_space = 8, ?callable $foreach_handler = null): void {
         if (AppEnv::$log_file === "" ||
             match (AppEnv::$log_level) {
                 "debug", "info", "warn", "error", "fatal" => false,
@@ -84,5 +96,8 @@ class Log {
             return;
         }
         self::log(LogLevel::FATAL, $msg);
+        if (isset($follow_items)){
+            self::multiline($follow_items, $pre_space, $foreach_handler);
+        }
     }
 }

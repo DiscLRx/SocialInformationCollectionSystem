@@ -2,7 +2,7 @@
   "class_path_mapper": "configuration/ClassPathMapper.json",
   "database_config_file": "configuration/DatabaseConfig.json",
   "log_file": "sics.log",
-  "log_level": "info",
+  "log_level": "debug",
   "auth_filter_impl": "security\\TokenAuthFilter",
   "exception_handler_impl": "exception\\ExceptionHandlerImpl",
   "controller_classes": [

@@ -68,7 +68,8 @@ class QuestionnaireManageController {
                         }, $o_arr));
                     return $q;
                 }, $q_arr));
-        } catch (JSONSerializeException) {
+        } catch (JSONSerializeException $ex) {
+            $ex->log();
             return Response::invalid_argument();
         }
         return $this->qm_service->create_questionnaire($qn);
