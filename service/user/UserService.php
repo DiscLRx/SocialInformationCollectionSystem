@@ -157,13 +157,6 @@ class UserService {
         return $this->user_update($user, $old_user);
     }
 
-    public function get_answered_questionnaireid(): ResponseModel {
-        $uid = $GLOBALS['USER']->get_id();
-        $qnid_arr = $this->answer_record_dao->select_questionnaireid_by_userid($uid);
-        $aqnid_dto = new AnsweredQnidDto($qnid_arr);
-        return Response::success($aqnid_dto);
-    }
-
     public function get_all_users(): ResponseModel {
         $user_arr = $this->user_dao->select();
         $umd_arr = array_map(
