@@ -212,7 +212,9 @@ final class Core {
 
         $body = file_get_contents('php://input');
         Log::debug("请求头", $headers, 4, fn($index, $item) => "{$index}: {$item}");
-        Log::debug("请求正文", [$body], 0);
+        if (!empty($body)){
+            Log::debug("请求正文", [$body], 0);
+        }
 
         $controller = new $controller_class();
         return $controller->$func_name($uri_arr, $uri_query_map, $body);
