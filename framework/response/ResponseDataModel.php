@@ -11,8 +11,7 @@ class ResponseDataModel extends ResponseModel {
 
     /**
      * @param int $code     状态码
-     * @param mixed $data   响应数据, 此参数为对象时，只有public字段会被序列化为json
-     * @
+     * @param mixed $data   响应数据
      */
     public function __construct(int $code, mixed $data) {
         parent::__construct($code);
